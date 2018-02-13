@@ -1,0 +1,17 @@
+
+
+LOOP : 	Display
+	Which measurement is next ? according to the switches state 
+	Delay 
+
+
+Mesure of frequency:
+	Low frequency with timer0 or 1 and Time Interval Counter
+	High frequency with timer 2 alone, by default 
+	When timer 2 is coming close to the minimum frequency it can measure then switch on the other timers
+	
+	whenever we need to display the result : do we have values from the 2 differents timers ? if yes, and if no overflow, just do an average of the 2 values
+		
+
+Measure of DC voltage
+	write in the ADC interruption service routine 
