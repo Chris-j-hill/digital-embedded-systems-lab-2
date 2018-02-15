@@ -1,0 +1,142 @@
+C51 COMPILER V9.54   FREQGEN_TIMER2                                                        02/14/2018 01:06:26 PAGE 1   
+
+
+C51 COMPILER V9.54, COMPILATION OF MODULE FREQGEN_TIMER2
+OBJECT MODULE PLACED IN .\Objects\FreqGen_timer2.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE Source\FreqGen_timer2.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRIN
+                    -T(.\Listings\FreqGen_timer2.lst) TABS(2) OBJECT(.\Objects\FreqGen_timer2.obj)
+
+line level    source
+
+   1          /* Digital and Embedded Systems 
+   2             Generates a square wave on P3.6 with adjustable frequency.
+   3             Switches on P2.2 to P2.0 set the frequency, by setting the 
+   4             reload value for timer 2 according to values in a look-up table.
+   5             Switch on P2.7 enables interrupts, so enabling this output.
+   6             In parallel, generates a slow square wave on P3.4 to flash an
+   7             LED - this uses a software delay, independent of interrupts.
+   8          
+   9             Main program configures timer and then loops, checking switches,
+  10             setting reload value, enabling interrupts and flashing LED.
+  11             Timer 2 ISR changes state of ouptut on P3.6 and clears flag.
+  12             
+  13             Frequency calculation, based on clock frequency 11.0592 MHz:
+  14             For 100 Hz output, want interrupts at 200 Hz, or every 
+  15             55296 clock cycles.  So set timer 2 reload value to 
+  16             (65536 - 55296) = 10240. 
+  17             */
+  18             
+  19          #include <ADUC841.H>
+  20          
+  21          // define some useful variable types
+  22          typedef unsigned char uint8;        // 8-bit unsigned integer
+  23          typedef unsigned short int uint16;  // 16-bit unsigned integer
+  24          
+  25          //sbit P2_7 = 0xA7;         // define a port pin
+  26          
+  27          #define BUZZ_PIN  WR      // output on Port 3 pin 6 (WR in header file)
+  28          #define LED       T0      // flashing LED (P3.4 called T0)
+  29          #define LED_BANK  P0      // LEDs are connected to Port 0
+  30          #define SWITCHES  P2      // switches are connected to Port 2
+  31          #define ENABLE_BIT  0x80  // mask to select bit 7 (enable interrupts)
+  32          #define FREQ_MASK   0x07  // mask to select lowest 3 bits (freq set)
+  33          #define LOW_BYTE  0x00FF  // mask to select low byte of 16-bit word
+  34          
+  35          
+  36          /*------------------------------------------------
+  37          Interrupt service routine for timer 2 interrupt.
+  38          Called by the hardware when the interrupt occurs.
+  39          ------------------------------------------------*/
+  40          void timer2 (void) interrupt 5   // interrupt vector at 002BH
+  41          {
+  42   1        BUZZ_PIN = ~BUZZ_PIN;         // invert the output pin
+  43   1        TF2 = 0;                      // clear interrupt flag
+  44   1      } // end timer2 interrupt service routine
+  45          
+  46          
+  47          /*------------------------------------------------
+  48          Software delay function - argument is number of loops.
+  49          ------------------------------------------------*/
+  50          void delay (uint16 delayVal)
+  51          {
+  52   1        uint16 i;                 // counting variable 
+  53   1        for (i = 0; i < delayVal; i++)    // repeat  
+  54   1          {
+C51 COMPILER V9.54   FREQGEN_TIMER2                                                        02/14/2018 01:06:26 PAGE 2   
+
+  55   2            // do nothing
+  56   2          }
+  57   1      } // end delay
+  58          
+  59          
+  60          /*------------------------------------------------
+  61          The main C function.  Program execution starts
+  62          here after stack initialization.
+  63          ------------------------------------------------*/
+  64          void main (void) 
+  65          {
+  66   1        uint8 swit;     // switch value - 8 bits
+  67   1        uint8 freqNum;  // frequency number
+  68   1        uint16 reloadVal; 
+  69   1        // reload values for 200, 300, 400, 600, 800, 1600, 2400, 3600 Hz
+  70   1        code uint16 lookUp[8] = { 37888, 47104, 51712, 56320, 58624, 
+  71   1                                  62080, 63232, 64000 };
+  72   1      /* Note: Standard C would use "const uint16 lookUp[8] ---"
+  73   1         The "const" qualifier specifies that the array is constant, 
+  74   1         and the compiler should not allow the program to change it.  
+  75   1         This compiler would store the array in data memory (like a 
+  76   1         normal array), and create code to copy the initial values 
+  77   1         from program memory to data memory at startup.
+  78   1         The "code" qualifier is an extension to C, similar to const, 
+  79   1         but telling the compiler to store the array in program memory. */
+  80   1      
+  81   1        // Set switch port for use as input
+  82   1        SWITCHES = 0xFF;  // output 1 to allow pin to be used as input
+  83   1      /* Note: The port registers contain 0xFF after reset, but the 
+  84   1         startup code changes Port 2 to 0x00 in "compact" mode. */
+  85   1      
+  86   1        // Set up timer 2 in timer mode, auto reload, no external control
+  87   1          T2CON = 0x04;  // all zero except run control
+  88   1          ET2   = 1;     // enable timer 2 interrupt
+  89   1      
+  90   1        // After setting up, main goes into an infinite loop
+  91   1        while (1)         // loop forever, repeating tasks
+  92   1        {
+  93   2          swit = SWITCHES;    // read switch values
+  94   2          LED_BANK = swit;    // output on LEDs 
+  95   2      
+  96   2          // Use enable switch to control all interrupts
+  97   2          EA = ((swit & ENABLE_BIT) == ENABLE_BIT);
+  98   2          //EA = P2_7;  // simpler alternative?
+  99   2      
+ 100   2          // Use 3 switches to set reload value (hence frequency)
+ 101   2          freqNum = swit & FREQ_MASK; // frequency number
+ 102   2          reloadVal = lookUp[freqNum];  // get reload value from table
+ 103   2          RCAP2L = reloadVal & LOW_BYTE;  // put low byte in reload register
+ 104   2          RCAP2H = reloadVal >> 8;    // put high byte in reload register
+ 105   2          
+ 106   2          // Change state of LED
+ 107   2          LED = ~LED;
+ 108   2          
+ 109   2          // Delay
+ 110   2          delay (40000);
+ 111   2          
+ 112   2        } // end while(1)
+ 113   1          
+ 114   1      } // end main
+
+
+C51 COMPILER V9.54   FREQGEN_TIMER2                                                        02/14/2018 01:06:26 PAGE 3   
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     86    ----
+   CONSTANT SIZE    =     16    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----       2
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

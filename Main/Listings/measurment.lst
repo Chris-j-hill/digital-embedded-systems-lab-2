@@ -1,0 +1,24 @@
+C51 COMPILER V9.54   MEASURMENT                                                            02/14/2018 02:04:55 PAGE 1   
+
+
+C51 COMPILER V9.54, COMPILATION OF MODULE MEASURMENT
+OBJECT MODULE PLACED IN .\Objects\measurment.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE Source\measurment.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\
+                    -Listings\measurment.lst) TABS(2) OBJECT(.\Objects\measurment.obj)
+
+line level    source
+
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   ----    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

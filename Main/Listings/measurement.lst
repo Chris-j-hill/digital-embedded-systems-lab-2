@@ -1,0 +1,78 @@
+C51 COMPILER V9.54   MEASUREMENT                                                           02/14/2018 13:44:25 PAGE 1   
+
+
+C51 COMPILER V9.54, COMPILATION OF MODULE MEASUREMENT
+OBJECT MODULE PLACED IN .\Objects\measurement.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE Source\measurement.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.
+                    -\Listings\measurement.lst) TABS(2) OBJECT(.\Objects\measurement.obj)
+
+line level    source
+
+   1          #include "measurement.h"
+   2          #include <ADUC841.H>
+   3          
+   4          extern volatile uint8 mode;
+   5          
+   6          void setup_timer2_freq_period_counting() {
+   7   1          // Set up timer 2 in timer mode (bit1), capture mode(bit0), external control activated(bit3), timer run(
+             -bit2), serial not needed(bit4-5),then interrupt modified by hardware
+   8   1          //T2CON = 0b00001101;  // all zero except run control
+   9   1          T2CON = 13;  // all zero except run control
+  10   1          ET2   = 1;     // enable timer 2 interrupt
+  11   1          EA = 1;       // enable general interrupt
+  12   1        
+  13   1          //uint8 nb_t2_of =0;
+  14   1      }
+  15          
+  16          
+  17          void dc_voltage_measurment(){} // functions to store measurements as required
+  18          void rms_measurment(){}         
+  19          void p2p_measurement(){}      
+  20          void frequency_measurement(){}
+  21            
+  22            /*------------------------------------------------
+  23          Interrupt service routine for timer 2 interrupt.
+  24          Called by the hardware when the interrupt occurs.
+  25          ------------------------------------------------*/
+  26          void timer2 (void) interrupt 5   // interrupt vector at 002BH
+  27          {
+  28   1      //  static period
+  29   1      //  if(TF2==1)
+  30   1      //  {
+  31   1      //      nb_t2_of++;
+  32   1      //  }
+  33   1      //  else //EXF2 ==1
+  34   1      //  {
+  35   1      //      
+  36   1      //  }
+  37   1      //  
+  38   1      //  TF2 = 0;                      // clear interrupt flag
+  39   1      //  EXF2 = 0;
+  40   1        
+  41   1        switch(mode){
+  42   2          case 0:   dc_voltage_measurment();  break;
+  43   2          case 1:   rms_measurment();         break;
+  44   2          case 2:   p2p_measurement();        break;
+  45   2          case 3:   frequency_measurement();  break;
+  46   2        }   
+  47   1        
+  48   1      } // end timer2 interrupt service routine
+  49          
+  50          
+  51          
+
+
+C51 COMPILER V9.54   MEASUREMENT                                                           02/14/2018 13:44:25 PAGE 2   
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     54    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

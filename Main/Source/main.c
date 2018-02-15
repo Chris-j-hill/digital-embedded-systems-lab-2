@@ -1,0 +1,96 @@
+#include <ADUC841.H>
+
+//typedef unsigned char uint8;				// 8-bit unsigned integer
+//typedef unsigned short int uint16;	// 16-bit unsigned integer
+
+#include "measurement.h"
+#include "screen.h"
+
+#define SCREEN_UPDATE_DELAY_TIME 500	//delay for screen update in milliseconds
+#define SWITCH_PORT  P2			// switches are connected to Port 2
+#define SWITCH_PORT_MASK 0x3;	//00000011
+#define SWITCH_PORT_MODE 0xFF	// 00 = all output FF = all input
+#define CLOCK_SPEED	 11059200
+#define CLOCK_CYCLES_IN_ONE_MS = CLOCK_SPEED/1000
+#define CLOCK_CYCLES_IN_FOR_LOOP 1	// use actual value here
+
+
+
+// global variables
+volatile uint8 mode=0;
+unsigned int i=0;                 // counting variable
+
+//// function prototypes
+void init_pins();
+void init_screen();			//initilisation bits for screen
+void init_timer_2();		// init for timer
+
+//void setup_timer2_freq_period_counting();
+//	
+//void update_display();	      //push values to display
+void get_mode_from_pins();		//read mode from port
+void delay(uint16 period);		
+
+//void dc_voltage_measurment(); // functions to store measurements as required
+//void rms_measurment(); 				
+//void p2p_measurement(); 			
+//void frequency_measurement();
+
+
+void main (void) {
+	// setup
+  init_pins();
+	init_screen();
+	init_timer_2();
+	
+	//loop
+	while(1){
+		update_display();
+		get_mode_from_pins();
+		delay(SCREEN_UPDATE_DELAY_TIME);
+	}
+}
+
+void init_pins(){
+//switch_pins
+
+	SWITCH_PORT = SWITCH_PORT_MASK;	//explicitely set these pins leaving rest of port alone
+	
+//init output pins for screen
+	
+	
+}
+
+void init_screen(){}			//initilisation bits for screen
+
+void init_timer_2(){}	
+
+
+void get_mode_from_pins(){		//read mode from port
+
+	uint8 pin_state;
+	//read pins...
+	pin_state = SWITCH_PORT & SWITCH_PORT_MASK
+	//if pin state != mode, setup hardware
+	if (pin_state != mode){	
+		mode = pin_state;
+		
+		switch(mode){		//setup hardware based on new mode
+			case 0: 				break;
+			case 1:					break;
+			case 2:					break;
+			case 3:		setup_timer2_freq_period_counting();			break;
+			
+		}
+	}
+}		
+
+void delay(uint32 period){
+
+	period = period*CLOCK_CYCLES_IN_ONE_MS/CLOCK_CYCLES_IN_FOR_LOOP;
+	 
+	for (i = 0; i < period; i++)    // count clock cycles
+    {}
+
+}		
+

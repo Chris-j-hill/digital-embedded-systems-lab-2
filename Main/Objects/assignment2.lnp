@@ -1,0 +1,6 @@
+".\Objects\START_AD.obj",
+".\Objects\main.obj",
+".\Objects\screen.obj",
+".\Objects\measurement.obj" 
+TO ".\Objects\assignment2" 
+PRINT(".\Listings\assignment2.m51") RAMSIZE(256) 

@@ -1,3 +1,4 @@
-".\Objects\timer0.obj" 
+".\Objects\timer0.obj",
+".\Objects\FreqGen_timer2.obj" 
 TO ".\Objects\task2" 
 PRINT(".\Listings\task2.m51") RAMSIZE(256) 

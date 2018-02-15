@@ -1,0 +1,122 @@
+C51 COMPILER V9.54   MAIN                                                                  02/14/2018 14:08:59 PAGE 1   
+
+
+C51 COMPILER V9.54, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\Objects\main.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE Source\main.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listin
+                    -gs\main.lst) TABS(2) OBJECT(.\Objects\main.obj)
+
+line level    source
+
+   1          #include <ADUC841.H>
+   2          
+   3          //typedef unsigned char uint8;        // 8-bit unsigned integer
+   4          //typedef unsigned short int uint16;  // 16-bit unsigned integer
+   5          
+   6          #include "measurement.h"
+   7          #include "screen.h"
+   8          
+   9          #define SCREEN_UPDATE_DELAY_TIME 500  //delay for screen update in milliseconds
+  10          #define SWITCH_PORT  P2     // switches are connected to Port 2
+  11          #define SWITCH_PORT_MASK 0x3; //00000011
+  12          #define SWITCH_PORT_MODE 0xFF // 00 = all output FF = all input
+  13          #define CLOCK_SPEED  11059200
+  14          #define CLOCK_CYCLES_IN_ONE_MS = CLOCK_SPEED/1000
+  15          #define CLOCK_CYCLES_IN_FOR_LOOP 1  // use actual value here
+  16          
+  17          
+  18          
+  19          // global variables
+  20          volatile uint8 mode=0;
+  21          unsigned int i=0;                 // counting variable
+  22          
+  23          //// function prototypes
+  24          void init_pins();
+  25          void init_screen();     //initilisation bits for screen
+  26          void init_timer_2();    // init for timer
+  27          
+  28          //void setup_timer2_freq_period_counting();
+  29          //  
+  30          //void update_display();        //push values to display
+  31          void get_mode_from_pins();    //read mode from port
+  32          void delay(uint16 period);    
+  33          
+  34          //void dc_voltage_measurment(); // functions to store measurements as required
+  35          //void rms_measurment();        
+  36          //void p2p_measurement();       
+  37          //void frequency_measurement();
+  38          
+  39          
+  40          void main (void) {
+  41   1        // setup
+  42   1        init_pins();
+  43   1        init_screen();
+  44   1        init_timer_2();
+  45   1        
+  46   1        //loop
+  47   1        while(1){
+  48   2          update_display();
+  49   2          get_mode_from_pins();
+  50   2          delay(SCREEN_UPDATE_DELAY_TIME);
+  51   2        }
+  52   1      }
+  53          
+  54          void init_pins(){
+C51 COMPILER V9.54   MAIN                                                                  02/14/2018 14:08:59 PAGE 2   
+
+  55   1      //switch_pins
+  56   1        //SWITCH_PORT = 0xFF    //set all as input initially
+  57   1        SWITCH_PORT = SWITCH_PORT & SWITCH_PORT_MASK; //explicitely set these pins leaving rest of port alone
+  58   1        
+  59   1      //init output pins for screen
+  60   1        
+  61   1        
+  62   1      }
+  63          
+  64          void init_screen(){}      //initilisation bits for screen
+  65          
+  66          void init_timer_2(){} 
+  67          
+  68          
+  69          void get_mode_from_pins(){    //read mode from port
+  70   1      
+  71   1        uint8 pin_state;
+  72   1        //read pins...
+  73   1        pin_state = SWITCH_PORT & SWITCH_PORT_MASK
+  74   1        //if pin state != mode, setup hardware
+  75   1        if (pin_state != mode){ 
+  76   2          mode = pin_state;
+  77   2          
+  78   2          switch(mode){   //setup hardware based on new mode
+  79   3            case 0:         break;
+  80   3            case 1:         break;
+  81   3            case 2:         break;
+  82   3            case 3:   setup_timer2_freq_period_counting();      break;
+  83   3            
+  84   3          }
+  85   2        }
+  86   1      }   
+  87          
+  88          void delay(uint32 period){
+  89   1      
+  90   1        period = period*CLOCK_CYCLES_IN_ONE_MS/CLOCK_CYCLES_IN_FOR_LOOP;
+  91   1         
+  92   1        for (i = 0; i < period; i++)    // count clock cycles
+  93   1          {}
+  94   1      
+  95   1      }   
+  96          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     85    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      3    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
