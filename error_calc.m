@@ -12,13 +12,14 @@ samp_freq = 100000;
 
 for  freq = [1:max_freq]
 
-    
+    period = 1/freq;
+    error1(freq) = period*samp_freq;
     
 %     error1(freq) = ((freq+0.49)/samp_freq);       
     
     edges_measured = freq*time_interval;
     
-    error2(freq) = (1/((edges_measured+0.49)/time_interval));
+    error2(freq) = edges_measured/samp_freq;
 end
 
 

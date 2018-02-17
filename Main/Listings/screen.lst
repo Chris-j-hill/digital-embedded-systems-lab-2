@@ -1,4 +1,4 @@
-C51 COMPILER V9.54   SCREEN                                                                02/14/2018 02:31:51 PAGE 1   
+C51 COMPILER V9.54   SCREEN                                                                02/17/2018 01:40:07 PAGE 1   
 
 
 C51 COMPILER V9.54, COMPILATION OF MODULE SCREEN
@@ -11,12 +11,17 @@ line level    source
    1          #include "screen.h"
    2          #include <ADUC841.H>
    3          
-   4          
-   5          void update_display(){}       //push values to display
+   4          extern volatile uint16 dc_avg;    //<<<  display this value for dc averaging
+   5          extern uint8 mode;
+   6            
+   7          
+   8          void init_screen(){}      //initilisation bits for screen
+   9          
+  10          void update_display(){}       //push values to display
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =      1    ----
+   CODE SIZE        =      2    ----
    CONSTANT SIZE    =   ----    ----
    XDATA SIZE       =   ----    ----
    PDATA SIZE       =   ----    ----

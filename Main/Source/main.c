@@ -1,7 +1,5 @@
 #include <ADUC841.H>
 
-//typedef unsigned char uint8;				// 8-bit unsigned integer
-//typedef unsigned short int uint16;	// 16-bit unsigned integer
 
 #include "measurement.h"
 #include "screen.h"
@@ -12,18 +10,18 @@
 #define SWITCH_PORT_MODE 0xFF	// 00 = all output FF = all input
 #define CLOCK_SPEED	 11059200
 #define CLOCK_CYCLES_IN_ONE_MS = CLOCK_SPEED/1000
-#define CLOCK_CYCLES_IN_FOR_LOOP 1	// use actual value here
+#define CLOCK_CYCLES_IN_FOR_LOOP 22	// value from counting assembled code
 
+#define USE_CIRCULAR_BUFFER		// comment out to use block buffering
 
 
 // global variables
-volatile uint8 mode=0;
+uint8 mode = 0;
 unsigned int i=0;                 // counting variable
 
 //// function prototypes
 void init_pins();
-void init_screen();			//initilisation bits for screen
-void init_timer_2();		// init for timer
+
 
 //void setup_timer2_freq_period_counting();
 //	
@@ -41,7 +39,6 @@ void main (void) {
 	// setup
   init_pins();
 	init_screen();
-	init_timer_2();
 	
 	//loop
 	while(1){
@@ -57,13 +54,10 @@ void init_pins(){
 	SWITCH_PORT = SWITCH_PORT_MASK;	//explicitely set these pins leaving rest of port alone
 	
 //init output pins for screen
-	
-	
+
 }
 
-void init_screen(){}			//initilisation bits for screen
 
-void init_timer_2(){}	
 
 
 void get_mode_from_pins(){		//read mode from port
@@ -76,10 +70,10 @@ void get_mode_from_pins(){		//read mode from port
 		mode = pin_state;
 		
 		switch(mode){		//setup hardware based on new mode
-			case 0: 				break;
+			case 0: 	setup_timers_dc_averaging();			break;
 			case 1:					break;
 			case 2:					break;
-			case 3:		setup_timer2_freq_period_counting();			break;
+			case 3:		setup_timers_freq_period_counting();			break;
 			
 		}
 	}
@@ -90,6 +84,7 @@ void delay(uint32 period){
 	period = period*CLOCK_CYCLES_IN_ONE_MS/CLOCK_CYCLES_IN_FOR_LOOP;
 	 
 	for (i = 0; i < period; i++)    // count clock cycles
+	// Nb: the for loop above takes 22 clock cycles to execute as assembly
     {}
 
 }		

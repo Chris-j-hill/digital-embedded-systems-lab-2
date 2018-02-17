@@ -1,4 +1,4 @@
-C51 COMPILER V9.54   MEASUREMENT                                                           02/14/2018 13:44:25 PAGE 1   
+C51 COMPILER V9.54   MEASUREMENT                                                           02/17/2018 01:40:08 PAGE 1   
 
 
 C51 COMPILER V9.54, COMPILATION OF MODULE MEASUREMENT
@@ -13,66 +13,124 @@ line level    source
    3          
    4          extern volatile uint8 mode;
    5          
-   6          void setup_timer2_freq_period_counting() {
-   7   1          // Set up timer 2 in timer mode (bit1), capture mode(bit0), external control activated(bit3), timer run(
+   6          
+   7          //dc averaging variables
+   8          #ifdef USE_CIRCULAR_BUFFER
+              #define BUFSIZE 16
+              volatile uint16 circular_buffer[BUFSIZE] ={0}; // array to hold values
+              #else
+  12          volatile uint16 block_buffer =0;      // simple value to store sum
+  13          #endif
+  14          
+  15          #define DC_TIMER_OVERFLOWS 10   // n*5.9 milliseconds between readings
+  16          uint8 dc_voltage_num_timer_overflows =0;
+  17          
+  18          volatile uint8 dc_avg_counter =0;
+  19          volatile uint16 dc_sum;
+  20          volatile uint16 dc_avg;   // <<<  display this value
+  21          
+  22          
+  23          
+  24          
+  25          void setup_timers_dc_averaging(){
+  26   1          
+  27   1          T2CON = 7;  // all zero except run control
+  28   1          ET2   = 1;     // enable timer 2 interrupt
+  29   1          EA = 1;
+  30   1        
+  31   1        //disable other timers...
+  32   1      
+  33   1      }
+  34            
+  35            
+  36          void setup_timers_freq_period_counting() {
+  37   1          // Set up timer 2 in timer mode (bit1), capture mode(bit0), external control activated(bit3), timer run(
              -bit2), serial not needed(bit4-5),then interrupt modified by hardware
-   8   1          //T2CON = 0b00001101;  // all zero except run control
-   9   1          T2CON = 13;  // all zero except run control
-  10   1          ET2   = 1;     // enable timer 2 interrupt
-  11   1          EA = 1;       // enable general interrupt
-  12   1        
-  13   1          //uint8 nb_t2_of =0;
-  14   1      }
-  15          
-  16          
-  17          void dc_voltage_measurment(){} // functions to store measurements as required
-  18          void rms_measurment(){}         
-  19          void p2p_measurement(){}      
-  20          void frequency_measurement(){}
-  21            
-  22            /*------------------------------------------------
-  23          Interrupt service routine for timer 2 interrupt.
-  24          Called by the hardware when the interrupt occurs.
-  25          ------------------------------------------------*/
-  26          void timer2 (void) interrupt 5   // interrupt vector at 002BH
-  27          {
-  28   1      //  static period
-  29   1      //  if(TF2==1)
-  30   1      //  {
-  31   1      //      nb_t2_of++;
-  32   1      //  }
-  33   1      //  else //EXF2 ==1
-  34   1      //  {
-  35   1      //      
-  36   1      //  }
-  37   1      //  
-  38   1      //  TF2 = 0;                      // clear interrupt flag
-  39   1      //  EXF2 = 0;
-  40   1        
-  41   1        switch(mode){
-  42   2          case 0:   dc_voltage_measurment();  break;
-  43   2          case 1:   rms_measurment();         break;
-  44   2          case 2:   p2p_measurement();        break;
-  45   2          case 3:   frequency_measurement();  break;
-  46   2        }   
+  38   1          //T2CON = 0b00001101;  // all zero except run control
+  39   1          T2CON = 13;  // all zero except run control
+  40   1          ET2   = 1;     // enable timer 2 interrupt
+  41   1          EA = 1;       // enable general interrupt
+  42   1        
+  43   1          //uint8 nb_t2_of =0;
+  44   1        
+  45   1        
+  46   1        //disable other timers...
   47   1        
-  48   1      } // end timer2 interrupt service routine
+  48   1      }
   49          
   50          
-  51          
+  51          void dc_voltage_measurment(){ // functions to store measurements as required
+  52   1      
+  53   1      if (TF2 == 1){
+C51 COMPILER V9.54   MEASUREMENT                                                           02/17/2018 01:40:08 PAGE 2   
 
+  54   2      dc_voltage_num_timer_overflows = (dc_voltage_num_timer_overflows+1) % DC_TIMER_OVERFLOWS;
+  55   2      TF2 = 0;
+  56   2      
+  57   2      if(dc_voltage_num_timer_overflows ==0){ 
+  58   3      #ifdef USE_CIRCULAR_BUFFER    // will update avg every time a value is read
+                
+                //circular buffer implementation
+                uint16 val = read_analog_input_pin();
+                dc_avg_counter = (dc_avg_counter + 1) % BUFSIZE;
+                dc_sum = dc_sum - circular_buffer[dc_avg_counter];        //subtract the old value from the running sum
+                circular_buffer[dc_avg_counter] = val;
+                dc_sum = dc_sum + circular_buffer[dc_avg_counter];        //add new value to sum
+                dc_avg = dc_sum/BUFSIZE;
+                
+                
+                
+              #else                         // update avg every 16 interrupts
+  71   3        
+  72   3        //block buffer implementation 
+  73   3        
+  74   3      #endif
+  75   3        
+  76   3      }
+  77   2      }
+  78   1      else if(EXF2==1)    //if for some reason this triggered interrupt, reset to stop continual interrupts
+  79   1        EXF2 =0;
+  80   1      } 
+  81          void rms_measurment(){}         
+  82          void p2p_measurement(){}      
+  83          void frequency_measurement(){}
+  84            
+  85          uint16 read_analog_input_pin(){
+  86   1      
+  87   1      } 
+*** WARNING C173 IN LINE 87 OF Source\measurement.c: missing return-expression
+  88            
+  89            /*------------------------------------------------
+  90          Interrupt service routine for timer 2 interrupt.
+  91          Called by the hardware when the interrupt occurs.
+  92          ------------------------------------------------*/
+  93          void timer2 (void) interrupt 5   // interrupt vector at 002BH
+  94          {
+  95   1        switch(mode){
+  96   2          case 0:   dc_voltage_measurment();  break;
+  97   2          case 1:   rms_measurment();         break;
+  98   2          case 2:   p2p_measurement();        break;
+  99   2          case 3:   frequency_measurement();  break;
+ 100   2        }   
+ 101   1        
+ 102   1      } // end timer2 interrupt service routine
+ 103          
+ 104          
+ 105          
+*** WARNING C290 IN LINE 87 OF Source\measurement.c: missing return value
 
-C51 COMPILER V9.54   MEASUREMENT                                                           02/14/2018 13:44:25 PAGE 2   
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =     54    ----
+   CODE SIZE        =    120    ----
    CONSTANT SIZE    =   ----    ----
    XDATA SIZE       =   ----    ----
    PDATA SIZE       =   ----    ----
-   DATA SIZE        =   ----    ----
+   DATA SIZE        =      8    ----
+C51 COMPILER V9.54   MEASUREMENT                                                           02/17/2018 01:40:08 PAGE 3   
+
    IDATA SIZE       =   ----    ----
    BIT SIZE         =   ----    ----
 END OF MODULE INFORMATION.
 
 
-C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
+C51 COMPILATION COMPLETE.  2 WARNING(S),  0 ERROR(S)
