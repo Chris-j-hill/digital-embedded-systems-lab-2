@@ -1,4 +1,4 @@
-BL51 BANKED LINKER/LOCATER V6.22                                                        02/17/2018  01:40:08  PAGE 1
+BL51 BANKED LINKER/LOCATER V6.22                                                        02/20/2018  14:05:43  PAGE 1
 
 
 BL51 BANKED LINKER/LOCATER V6.22, INVOKED BY:
@@ -28,7 +28,8 @@ LINK MAP OF MODULE:  .\Objects\assignment2 (?C_STARTUP)
             * * * * * * *   D A T A   M E M O R Y   * * * * * * *
             REG     0000H     0008H     ABSOLUTE     "REG BANK 0"
             DATA    0008H     0008H     UNIT         ?DT?MEASUREMENT
-            DATA    0010H     0003H     UNIT         ?DT?MAIN
+            DATA    0010H     0002H     UNIT         _DATA_GROUP_
+            DATA    0012H     0001H     UNIT         ?DT?MAIN
             IDATA   0013H     0001H     UNIT         ?STACK
 
             * * * * * * *   C O D E   M E M O R Y   * * * * * * *
@@ -38,55 +39,58 @@ LINK MAP OF MODULE:  .\Objects\assignment2 (?C_STARTUP)
                     002EH     07D2H                  *** GAP ***
             CODE    0800H     008FH     UNIT         ?C_C51STARTUP
             CODE    088FH     0067H     UNIT         ?C?LIB_CODE
-            CODE    08F6H     0045H     UNIT         ?PR?TIMER2?MEASUREMENT
-            CODE    093BH     0020H     UNIT         ?PR?_DELAY?MAIN
-            CODE    095BH     001FH     UNIT         ?PR?DC_VOLTAGE_MEASURMENT?MEASUREMENT
-            CODE    097AH     001CH     UNIT         ?PR?GET_MODE_FROM_PINS?MAIN
-            CODE    0996H     0015H     UNIT         ?PR?MAIN?MAIN
-            CODE    09ABH     0012H     UNIT         ?C_INITSEG
-            CODE    09BDH     0008H     UNIT         ?PR?SETUP_TIMERS_DC_AVERAGING?MEASUREMENT
-            CODE    09C5H     0008H     UNIT         ?PR?SETUP_TIMERS_FREQ_PERIOD_COUNTING?MEASUREMENT
-            CODE    09CDH     0004H     UNIT         ?PR?INIT_PINS?MAIN
-            CODE    09D1H     0001H     UNIT         ?PR?INIT_SCREEN?SCREEN
-            CODE    09D2H     0001H     UNIT         ?PR?UPDATE_DISPLAY?SCREEN
-            CODE    09D3H     0001H     UNIT         ?PR?RMS_MEASURMENT?MEASUREMENT
-            CODE    09D4H     0001H     UNIT         ?PR?P2P_MEASUREMENT?MEASUREMENT
-            CODE    09D5H     0001H     UNIT         ?PR?FREQUENCY_MEASUREMENT?MEASUREMENT
-            CODE    09D6H     0001H     UNIT         ?PR?READ_ANALOG_INPUT_PIN?MEASUREMENT
+            CODE    08F6H     0059H     UNIT         ?PR?TIMER2?MEASUREMENT
+            CODE    094FH     0053H     UNIT         ?PR?DC_VOLTAGE_MEASURMENT?MEASUREMENT
+            CODE    09A2H     001CH     UNIT         ?PR?GET_MODE_FROM_PINS?MAIN
+            CODE    09BEH     0019H     UNIT         ?PR?_DELAY?MAIN
+            CODE    09D7H     0015H     UNIT         ?PR?MAIN?MAIN
+            CODE    09ECH     000EH     UNIT         ?C_INITSEG
+            CODE    09FAH     0008H     UNIT         ?PR?SETUP_TIMERS_DC_AVERAGING?MEASUREMENT
+            CODE    0A02H     0008H     UNIT         ?PR?SETUP_TIMERS_FREQ_PERIOD_COUNTING?MEASUREMENT
+            CODE    0A0AH     0004H     UNIT         ?PR?INIT_PINS?MAIN
+            CODE    0A0EH     0004H     UNIT         ?PR?READ_ANALOG_INPUT_PIN?MEASUREMENT
+            CODE    0A12H     0001H     UNIT         ?PR?INIT_SCREEN?SCREEN
+            CODE    0A13H     0001H     UNIT         ?PR?UPDATE_DISPLAY?SCREEN
+            CODE    0A14H     0001H     UNIT         ?PR?RMS_MEASURMENT?MEASUREMENT
+            CODE    0A15H     0001H     UNIT         ?PR?P2P_MEASUREMENT?MEASUREMENT
+            CODE    0A16H     0001H     UNIT         ?PR?FREQUENCY_MEASUREMENT?MEASUREMENT
 
 
 
 OVERLAY MAP OF MODULE:   .\Objects\assignment2 (?C_STARTUP)
 
+BL51 BANKED LINKER/LOCATER V6.22                                                      02/20/2018  14:05:43  PAGE 2
 
-BL51 BANKED LINKER/LOCATER V6.22                                                      02/17/2018  01:40:08  PAGE 2
 
 
-SEGMENT
-  +--> CALLED SEGMENT
----------------------
-?C_C51STARTUP
+SEGMENT                                            DATA_GROUP 
+  +--> CALLED SEGMENT                            START    LENGTH
+----------------------------------------------------------------
+?C_C51STARTUP                                    -----    -----
   +--> ?PR?MAIN?MAIN
   +--> ?C_INITSEG
 
-?PR?MAIN?MAIN
+?PR?MAIN?MAIN                                    -----    -----
   +--> ?PR?INIT_PINS?MAIN
   +--> ?PR?INIT_SCREEN?SCREEN
   +--> ?PR?UPDATE_DISPLAY?SCREEN
   +--> ?PR?GET_MODE_FROM_PINS?MAIN
   +--> ?PR?_DELAY?MAIN
 
-?PR?GET_MODE_FROM_PINS?MAIN
+?PR?GET_MODE_FROM_PINS?MAIN                      -----    -----
   +--> ?PR?SETUP_TIMERS_DC_AVERAGING?MEASURE...
   +--> ?PR?SETUP_TIMERS_FREQ_PERIOD_COUNTING...
 
 *** NEW ROOT ***************************************************
 
-?PR?TIMER2?MEASUREMENT
+?PR?TIMER2?MEASUREMENT                           -----    -----
   +--> ?PR?DC_VOLTAGE_MEASURMENT?MEASUREMENT
   +--> ?PR?RMS_MEASURMENT?MEASUREMENT
   +--> ?PR?P2P_MEASUREMENT?MEASUREMENT
   +--> ?PR?FREQUENCY_MEASUREMENT?MEASUREMENT
+
+?PR?DC_VOLTAGE_MEASURMENT?MEASUREMENT            0010H    0002H
+  +--> ?PR?READ_ANALOG_INPUT_PIN?MEASUREMENT
 
 
 
@@ -115,13 +119,13 @@ SYMBOL TABLE OF MODULE:  .\Objects\assignment2 (?C_STARTUP)
   D:0081H         SYMBOL        SP
   D:00B7H         SYMBOL        SPH
   N:0200H         SYMBOL        STACKSIZE
+BL51 BANKED LINKER/LOCATER V6.22                                                      02/20/2018  14:05:43  PAGE 3
+
+
   C:0800H         SYMBOL        STARTUP1
   N:0000H         SYMBOL        XBPSTACK
   N:0000H         SYMBOL        XBPSTACKTOP
   N:0000H         SYMBOL        XDATALEN
-BL51 BANKED LINKER/LOCATER V6.22                                                      02/17/2018  01:40:08  PAGE 3
-
-
   N:0000H         SYMBOL        XDATASTART
   N:0000H         SYMBOL        XRAMEN
   N:0600H         SYMBOL        XSTACKSTART
@@ -139,66 +143,68 @@ SYMBOL TABLE OF MODULE:  .\Objects\assignment2 (?C_STARTUP)
   -------         MODULE        MAIN
   C:0000H         SYMBOL        _ICE_DUMMY_
   D:00A0H         PUBLIC        P2
-  C:093BH         PUBLIC        _delay
-  C:0996H         PUBLIC        main
-  D:0010H         PUBLIC        mode
-  C:09CDH         PUBLIC        init_pins
-  D:0011H         PUBLIC        i
-  C:097AH         PUBLIC        get_mode_from_pins
+  C:09BEH         PUBLIC        _delay
+  C:09D7H         PUBLIC        main
+  D:0012H         PUBLIC        mode
+  C:0A0AH         PUBLIC        init_pins
+  C:09A2H         PUBLIC        get_mode_from_pins
   -------         PROC          MAIN
-  C:0996H         LINE#         38
-  C:0996H         LINE#         40
-  C:0999H         LINE#         41
-  C:099CH         LINE#         44
-  C:099CH         LINE#         45
-  C:099FH         LINE#         46
-  C:09A2H         LINE#         47
-  C:09A9H         LINE#         48
+  C:09D7H         LINE#         36
+  C:09D7H         LINE#         38
+  C:09DAH         LINE#         39
+  C:09DDH         LINE#         42
+  C:09DDH         LINE#         43
+  C:09E0H         LINE#         44
+  C:09E3H         LINE#         45
+  C:09EAH         LINE#         46
   -------         ENDPROC       MAIN
   -------         PROC          INIT_PINS
-  C:09CDH         LINE#         51
-  C:09CDH         LINE#         54
-  C:09D0H         LINE#         58
+  C:0A0AH         LINE#         49
+  C:0A0AH         LINE#         52
+  C:0A0DH         LINE#         56
   -------         ENDPROC       INIT_PINS
   -------         PROC          GET_MODE_FROM_PINS
   -------         DO            
   D:0007H         SYMBOL        pin_state
   -------         ENDDO         
-  C:097AH         LINE#         63
-  C:097AH         LINE#         67
-  C:097FH         LINE#         69
-  C:0983H         LINE#         70
-  C:0985H         LINE#         72
-  C:098FH         LINE#         73
-  C:0992H         LINE#         74
-  C:0992H         LINE#         75
-  C:0992H         LINE#         76
-  C:0995H         LINE#         78
-  C:0995H         LINE#         79
-  C:0995H         LINE#         80
+  C:09A2H         LINE#         59
+  C:09A2H         LINE#         63
+  C:09A7H         LINE#         65
+  C:09ABH         LINE#         66
+  C:09ADH         LINE#         68
+  C:09B7H         LINE#         69
+  C:09BAH         LINE#         70
+  C:09BAH         LINE#         71
+  C:09BAH         LINE#         72
+  C:09BDH         LINE#         74
+  C:09BDH         LINE#         75
+  C:09BDH         LINE#         76
+BL51 BANKED LINKER/LOCATER V6.22                                                      02/20/2018  14:05:43  PAGE 4
+
+
   -------         ENDPROC       GET_MODE_FROM_PINS
   -------         PROC          _DELAY
   D:0006H         SYMBOL        period
-BL51 BANKED LINKER/LOCATER V6.22                                                      02/17/2018  01:40:08  PAGE 4
-
-
-  C:093BH         LINE#         82
-  C:093BH         LINE#         84
-  C:0942H         LINE#         86
-  C:0950H         LINE#         88
-  C:095AH         LINE#         90
+  -------         DO            
+  D:0004H         SYMBOL        i
+  -------         ENDDO         
+  C:09BEH         LINE#         78
+  C:09BEH         LINE#         81
+  C:09C5H         LINE#         83
+  C:09CFH         LINE#         85
+  C:09D6H         LINE#         87
   -------         ENDPROC       _DELAY
   -------         ENDMOD        MAIN
 
   -------         MODULE        SCREEN
   C:0000H         SYMBOL        _ICE_DUMMY_
-  C:09D1H         PUBLIC        init_screen
-  C:09D2H         PUBLIC        update_display
+  C:0A12H         PUBLIC        init_screen
+  C:0A13H         PUBLIC        update_display
   -------         PROC          INIT_SCREEN
-  C:09D1H         LINE#         8
+  C:0A12H         LINE#         8
   -------         ENDPROC       INIT_SCREEN
   -------         PROC          UPDATE_DISPLAY
-  C:09D2H         LINE#         10
+  C:0A13H         LINE#         10
   -------         ENDPROC       UPDATE_DISPLAY
   -------         ENDMOD        SCREEN
 
@@ -207,89 +213,104 @@ SYMBOL TABLE OF MODULE:  .\Objects\assignment2 (?C_STARTUP)
   D:0008H         PUBLIC        dc_sum
   B:00A8H.7       PUBLIC        EA
   B:00C8H.6       PUBLIC        EXF2
-  C:09D4H         PUBLIC        p2p_measurement
+  C:0A15H         PUBLIC        p2p_measurement
   D:000AH         PUBLIC        dc_voltage_num_timer_overflows
-  C:09D6H         PUBLIC        read_analog_input_pin
-  C:095BH         PUBLIC        dc_voltage_measurment
+  C:0A0EH         PUBLIC        read_analog_input_pin
+  C:094FH         PUBLIC        dc_voltage_measurment
   B:00A8H.5       PUBLIC        ET2
   B:00C8H.7       PUBLIC        TF2
   D:000BH         PUBLIC        dc_avg_counter
   C:08F6H         PUBLIC        timer2
   D:000CH         PUBLIC        dc_avg
   D:00C8H         PUBLIC        T2CON
-  C:09D5H         PUBLIC        frequency_measurement
+  C:0A16H         PUBLIC        frequency_measurement
   D:000EH         PUBLIC        block_buffer
-  C:09BDH         PUBLIC        setup_timers_dc_averaging
-  C:09C5H         PUBLIC        setup_timers_freq_period_counting
-  C:09D3H         PUBLIC        rms_measurment
+  C:09FAH         PUBLIC        setup_timers_dc_averaging
+  C:0A02H         PUBLIC        setup_timers_freq_period_counting
+  C:0A14H         PUBLIC        rms_measurment
   -------         PROC          SETUP_TIMERS_DC_AVERAGING
-  C:09BDH         LINE#         25
-  C:09BDH         LINE#         27
-  C:09C0H         LINE#         28
-  C:09C2H         LINE#         29
-  C:09C4H         LINE#         33
+  C:09FAH         LINE#         26
+  C:09FAH         LINE#         28
+  C:09FDH         LINE#         29
+  C:09FFH         LINE#         30
+  C:0A01H         LINE#         34
   -------         ENDPROC       SETUP_TIMERS_DC_AVERAGING
   -------         PROC          SETUP_TIMERS_FREQ_PERIOD_COUNTING
-  C:09C5H         LINE#         36
-  C:09C5H         LINE#         39
-  C:09C8H         LINE#         40
-  C:09CAH         LINE#         41
-  C:09CCH         LINE#         48
+  C:0A02H         LINE#         38
+  C:0A02H         LINE#         41
+  C:0A05H         LINE#         42
+BL51 BANKED LINKER/LOCATER V6.22                                                      02/20/2018  14:05:43  PAGE 5
+
+
+  C:0A07H         LINE#         43
+  C:0A09H         LINE#         50
   -------         ENDPROC       SETUP_TIMERS_FREQ_PERIOD_COUNTING
   -------         PROC          DC_VOLTAGE_MEASURMENT
-  C:095BH         LINE#         51
-  C:095BH         LINE#         53
-BL51 BANKED LINKER/LOCATER V6.22                                                      02/17/2018  01:40:08  PAGE 5
-
-
-  C:095EH         LINE#         54
-  C:096FH         LINE#         55
-  C:0971H         LINE#         57
-  C:0973H         LINE#         76
-  C:0973H         LINE#         77
-  C:0974H         LINE#         78
-  C:0977H         LINE#         79
-  C:0979H         LINE#         80
+  -------         DO            
+  D:0010H         SYMBOL        val
+  -------         ENDDO         
+  C:094FH         LINE#         57
+  C:094FH         LINE#         59
+  C:0952H         LINE#         60
+  C:0963H         LINE#         61
+  C:0965H         LINE#         63
+  C:0969H         LINE#         65
+  C:0970H         LINE#         83
+  C:0977H         LINE#         84
+  C:0979H         LINE#         85
+  C:098AH         LINE#         86
+  C:098FH         LINE#         87
+  C:098FH         LINE#         88
+  C:099BH         LINE#         92
+  C:099BH         LINE#         93
+  C:099CH         LINE#         95
+  C:099FH         LINE#         96
+  C:09A1H         LINE#         97
   -------         ENDPROC       DC_VOLTAGE_MEASURMENT
   -------         PROC          RMS_MEASURMENT
-  C:09D3H         LINE#         81
+  C:0A14H         LINE#         99
   -------         ENDPROC       RMS_MEASURMENT
   -------         PROC          P2P_MEASUREMENT
-  C:09D4H         LINE#         82
+  C:0A15H         LINE#         101
   -------         ENDPROC       P2P_MEASUREMENT
   -------         PROC          FREQUENCY_MEASUREMENT
-  C:09D5H         LINE#         83
+  C:0A16H         LINE#         103
   -------         ENDPROC       FREQUENCY_MEASUREMENT
   -------         PROC          READ_ANALOG_INPUT_PIN
-  C:09D6H         LINE#         85
-  C:09D6H         LINE#         87
+  -------         DO            
+  D:0006H         SYMBOL        val
+  -------         ENDDO         
+  C:0A0EH         LINE#         105
+  C:0A0EH         LINE#         106
+  C:0A11H         LINE#         108
+  C:0A11H         LINE#         109
   -------         ENDPROC       READ_ANALOG_INPUT_PIN
   -------         PROC          TIMER2
-  C:08F6H         LINE#         93
-  C:0909H         LINE#         95
-  C:0918H         LINE#         96
-  C:091DH         LINE#         97
-  C:0922H         LINE#         98
-  C:0927H         LINE#         99
-  C:092AH         LINE#         100
-  C:092AH         LINE#         102
+  C:08F6H         LINE#         116
+  C:0913H         LINE#         118
+  C:0922H         LINE#         119
+  C:0927H         LINE#         120
+  C:092CH         LINE#         121
+  C:0931H         LINE#         122
+  C:0934H         LINE#         123
+  C:0934H         LINE#         125
   -------         ENDPROC       TIMER2
   -------         ENDMOD        MEASUREMENT
 
   -------         MODULE        ?C?IMUL
   C:088FH         PUBLIC        ?C?IMUL
+BL51 BANKED LINKER/LOCATER V6.22                                                      02/20/2018  14:05:43  PAGE 6
+
+
   -------         ENDMOD        ?C?IMUL
 
   -------         MODULE        ?C?UIDIV
   C:08A1H         PUBLIC        ?C?UIDIV
   -------         ENDMOD        ?C?UIDIV
 
-*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
-    SEGMENT: ?PR?READ_ANALOG_INPUT_PIN?MEASUREMENT
-
 ******************************************************************************
-* RESTRICTED VERSION WITH 0800H BYTE CODE SIZE LIMIT; USED: 00F5H BYTE (11%) *
+* RESTRICTED VERSION WITH 0800H BYTE CODE SIZE LIMIT; USED: 0135H BYTE (15%) *
 ******************************************************************************
 
-Program Size: data=20.0 xdata=0 code=477
-LINK/LOCATE RUN COMPLETE.  1 WARNING(S),  0 ERROR(S)
+Program Size: data=20.0 xdata=0 code=541
+LINK/LOCATE RUN COMPLETE.  0 WARNING(S),  0 ERROR(S)

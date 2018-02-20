@@ -8,16 +8,19 @@
 #define SWITCH_PORT  P2			// switches are connected to Port 2
 #define SWITCH_PORT_MASK 0x3;	//00000011
 #define SWITCH_PORT_MODE 0xFF	// 00 = all output FF = all input
+
+#define ANALOG_INPUT_PIN P1.2
+		
+
+
 #define CLOCK_SPEED	 11059200
 #define CLOCK_CYCLES_IN_ONE_MS = CLOCK_SPEED/1000
 #define CLOCK_CYCLES_IN_FOR_LOOP 22	// value from counting assembled code
-
 #define USE_CIRCULAR_BUFFER		// comment out to use block buffering
 
 
 // global variables
-uint8 mode = 0;
-unsigned int i=0;                 // counting variable
+uint8 mode = 0;                 // mode of operation as read from pins
 
 //// function prototypes
 void init_pins();
@@ -37,7 +40,7 @@ void delay(uint16 period);
 
 void main (void) {
 	// setup
-  init_pins();
+  init_pins();		//set switches and analog pins as input, leds as output and enable screen pins
 	init_screen();
 	
 	//loop
@@ -52,12 +55,10 @@ void init_pins(){
 //switch_pins
 
 	SWITCH_PORT = SWITCH_PORT_MASK;	//explicitely set these pins leaving rest of port alone
-	
+	ANALOG_INPUT_PIN = 0;						//set as input
 //init output pins for screen
 
 }
-
-
 
 
 void get_mode_from_pins(){		//read mode from port
@@ -80,7 +81,8 @@ void get_mode_from_pins(){		//read mode from port
 }		
 
 void delay(uint32 period){
-
+	
+unsigned int i;		// counting variable
 	period = period*CLOCK_CYCLES_IN_ONE_MS/CLOCK_CYCLES_IN_FOR_LOOP;
 	 
 	for (i = 0; i < period; i++)    // count clock cycles
