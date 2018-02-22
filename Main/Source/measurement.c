@@ -1,5 +1,6 @@
 #include "measurement.h"
 #include <ADUC841.H>
+#include "config.h"
 
 extern volatile uint8 mode;
 
@@ -20,7 +21,9 @@ uint8 dc_avg_counter =0;
 uint16 dc_sum;
 volatile uint16 dc_avg;		// <<<  display this value
 
-
+//freq measurment
+extern volatile uint32 avg_freq;
+extern volatile uint8 nb_overflow;
 
 
 void setup_timers_dc_averaging(){
@@ -100,7 +103,33 @@ void rms_measurment(){}
 
 void p2p_measurement(){} 			
 
-void frequency_measurement(){}
+void frequency_measurement() 
+{
+	//Setup the initial values of the static variables to ZERO
+	static uint32 new_sample=0;
+	static uint8 past_RCAP2H=0;
+	static uint8 past_RCAP2L=0;
+	
+	
+	if(EXF2==1){ // new edges incoming (of the periodic signal we want to measure) => end of the a period
+		//What is the new sample ?
+		new_sample = (nb_overflow<<16)	+ ((RCAP2H-past_RCAP2H)<<8) + (RCAP2L-past_RCAP2L); //concatenate the 3 bytes
+		//Update the average using IIR filter
+		avg_freq=(new_sample*3)/20 + (avg_freq*17)/20;   //alpha chosen 0.15=3/20
+		
+		//Prepare the next interruption
+		past_RCAP2H=RCAP2H;
+		past_RCAP2L=RCAP2L;
+		nb_overflow=0;
+		EXF2=0;//clear the flag
+	}
+		else	//EXF2==0 and TF2==1
+	{
+			nb_overflow++;
+			TF2=0; //clear the flag
+	} 
+	
+}
 	
 uint16 read_analog_input_pin(){
 uint16 val =0;

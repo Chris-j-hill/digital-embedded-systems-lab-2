@@ -1,26 +1,16 @@
 #include <ADUC841.H>
 
-
+#include "config.h"
 #include "measurement.h"
 #include "screen.h"
 
-#define SCREEN_UPDATE_DELAY_TIME 500	//delay for screen update in milliseconds
-#define SWITCH_PORT  P2			// switches are connected to Port 2
-#define SWITCH_PORT_MASK 0x3;	//00000011
-#define SWITCH_PORT_MODE 0xFF	// 00 = all output FF = all input
 
-#define ANALOG_INPUT_PIN P1.2
-		
-
-
-#define CLOCK_SPEED	 11059200
-#define CLOCK_CYCLES_IN_ONE_MS = CLOCK_SPEED/1000
-#define CLOCK_CYCLES_IN_FOR_LOOP 22	// value from counting assembled code
-#define USE_CIRCULAR_BUFFER		// comment out to use block buffering
 
 
 // global variables
 uint8 mode = 0;                 // mode of operation as read from pins
+uint32 avg_freq = 0;
+uint8 nb_overflow =0;
 
 //// function prototypes
 void init_pins();
@@ -45,6 +35,7 @@ void main (void) {
 	
 	//loop
 	while(1){
+		
 		update_display();
 		get_mode_from_pins();
 		delay(SCREEN_UPDATE_DELAY_TIME);
@@ -55,7 +46,7 @@ void init_pins(){
 //switch_pins
 
 	SWITCH_PORT = SWITCH_PORT_MASK;	//explicitely set these pins leaving rest of port alone
-	ANALOG_INPUT_PIN = 0;						//set as input
+	//ANALOG_INPUT_PIN = 0;						//set as input
 //init output pins for screen
 
 }
