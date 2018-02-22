@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 C51 COMPILER V9.54   MAIN                                                                  02/20/2018 16:24:14 PAGE 1   
 
 
@@ -124,3 +125,115 @@ END OF MODULE INFORMATION.
 
 
 C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
+=======
+C51 COMPILER V9.54   MAIN                                                                  02/20/2018 16:53:45 PAGE 1   
+
+
+C51 COMPILER V9.54, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\Objects\main.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE Source\main.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listin
+                    -gs\main.lst) TABS(2) OBJECT(.\Objects\main.obj)
+
+line level    source
+
+   1          #include <ADUC841.H>
+   2          
+   3          #include "config.h"
+   4          #include "measurement.h"
+   5          #include "screen.h"
+   6          
+   7          
+   8          
+   9          
+  10          // global variables
+  11          uint8 mode = 0;                 // mode of operation as read from pins
+  12          uint32 avg_freq = 0;
+  13          uint8 nb_overflow =0;
+  14          
+  15          //// function prototypes
+  16          void init_pins();
+  17          
+  18          
+  19          //void setup_timer2_freq_period_counting();
+  20          //  
+  21          //void update_display();        //push values to display
+  22          void get_mode_from_pins();    //read mode from port
+  23          void delay(uint16 period);    
+  24          
+  25          //void dc_voltage_measurment(); // functions to store measurements as required
+  26          //void rms_measurment();        
+  27          //void p2p_measurement();       
+  28          //void frequency_measurement();
+  29          
+  30          
+  31          void main (void) {
+  32   1        // setup
+  33   1        init_pins();    //set switches and analog pins as input, leds as output and enable screen pins
+  34   1        init_screen();
+  35   1        
+  36   1        //loop
+  37   1        while(1){
+  38   2          
+  39   2          update_display();
+  40   2          get_mode_from_pins();
+  41   2          delay(SCREEN_UPDATE_DELAY_TIME);
+  42   2        }
+  43   1      }
+  44          
+  45          void init_pins(){
+  46   1      //switch_pins
+  47   1      
+  48   1        SWITCH_PORT = SWITCH_PORT_MASK; //explicitely set these pins leaving rest of port alone
+  49   1        //ANALOG_INPUT_PIN = 0;           //set as input
+  50   1      //init output pins for screen
+  51   1      
+  52   1      }
+  53          
+  54          
+C51 COMPILER V9.54   MAIN                                                                  02/20/2018 16:53:45 PAGE 2   
+
+  55          void get_mode_from_pins(){    //read mode from port
+  56   1      
+  57   1        uint8 pin_state;
+  58   1        //read pins...
+  59   1        pin_state = SWITCH_PORT & SWITCH_PORT_MASK
+  60   1        //if pin state != mode, setup hardware
+  61   1        if (pin_state != mode){ 
+  62   2          mode = pin_state;
+  63   2          
+  64   2          switch(mode){   //setup hardware based on new mode
+  65   3            case 0:   setup_timers_dc_averaging();      break;
+  66   3            case 1:         break;
+  67   3            case 2:         break;
+  68   3            case 3:   setup_timers_freq_period_counting();      break;
+  69   3            
+  70   3          }
+  71   2        }
+  72   1      }   
+  73          
+  74          void delay(uint32 period){
+  75   1        
+  76   1      unsigned int i;   // counting variable
+  77   1        period = period*CLOCK_CYCLES_IN_ONE_MS/CLOCK_CYCLES_IN_FOR_LOOP;
+  78   1         
+  79   1        for (i = 0; i < period; i++)    // count clock cycles
+  80   1        // Nb: the for loop above takes 22 clock cycles to execute as assembly
+  81   1          {}
+  82   1      
+  83   1      }   
+  84          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     78    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      4    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
+>>>>>>> origin/master

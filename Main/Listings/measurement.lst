@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 C51 COMPILER V9.54   MEASUREMENT                                                           02/20/2018 16:36:21 PAGE 1   
 
 
@@ -162,3 +163,192 @@ END OF MODULE INFORMATION.
 
 
 C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
+=======
+C51 COMPILER V9.54   MEASUREMENT                                                           02/20/2018 16:53:45 PAGE 1   
+
+
+C51 COMPILER V9.54, COMPILATION OF MODULE MEASUREMENT
+OBJECT MODULE PLACED IN .\Objects\measurement.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE Source\measurement.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.
+                    -\Listings\measurement.lst) TABS(2) OBJECT(.\Objects\measurement.obj)
+
+line level    source
+
+   1          #include "measurement.h"
+   2          #include <ADUC841.H>
+   3          #include "config.h"
+   4          
+   5          extern volatile uint8 mode;
+   6          
+   7          
+   8          //dc averaging variables
+   9          #ifdef USE_CIRCULAR_BUFFER
+  10          #define BUFSIZE 16
+  11          volatile uint16 circular_buffer[BUFSIZE] ={0}; // array to hold values
+  12          #else
+              volatile uint16 block_buffer =0;      // simple value to store sum
+              #define DC_AVG_NUM_SAMPLES 128
+              #endif
+  16          
+  17          #define DC_TIMER_OVERFLOWS 10   // n*5.9 milliseconds between readings
+  18          uint8 dc_voltage_num_timer_overflows =0;
+  19          
+  20          uint8 dc_avg_counter =0;
+  21          uint16 dc_sum;
+  22          volatile uint16 dc_avg;   // <<<  display this value
+  23          
+  24          //freq measurment
+  25          extern volatile uint32 avg_freq;
+  26          extern volatile uint8 nb_overflow;
+  27          
+  28          
+  29          void setup_timers_dc_averaging(){
+  30   1          
+  31   1          T2CON = 7;  // all zero except run control
+  32   1          ET2   = 1;     // enable timer 2 interrupt
+  33   1          EA = 1;
+  34   1        
+  35   1        //disable other timers...
+  36   1      
+  37   1      }
+  38            
+  39            
+  40          
+  41          void setup_timers_freq_period_counting() {
+  42   1          // Set up timer 2 in timer mode (bit1), capture mode(bit0), external control activated(bit3), timer run(
+             -bit2), serial not needed(bit4-5),then interrupt modified by hardware
+  43   1          //T2CON = 0b00001101;  // all zero except run control
+  44   1          T2CON = 13;  // all zero except run control
+  45   1          ET2   = 1;     // enable timer 2 interrupt
+  46   1          EA = 1;       // enable general interrupt
+  47   1        
+  48   1          //uint8 nb_t2_of =0;
+  49   1        
+  50   1        
+  51   1        //disable other timers...
+  52   1        
+  53   1      }
+C51 COMPILER V9.54   MEASUREMENT                                                           02/20/2018 16:53:45 PAGE 2   
+
+  54          
+  55          
+  56          
+  57          
+  58          
+  59          
+  60          void dc_voltage_measurment(){ // functions to store measurements as required
+  61   1      
+  62   1        if (TF2 == 1){  //if counter overflow, increment counter
+  63   2        dc_voltage_num_timer_overflows = (dc_voltage_num_timer_overflows+1) % DC_TIMER_OVERFLOWS;
+  64   2        TF2 = 0;
+  65   2      
+  66   2          if(dc_voltage_num_timer_overflows ==0){ 
+  67   3            
+  68   3            uint16 val = read_analog_input_pin();
+  69   3            
+  70   3          #ifdef USE_CIRCULAR_BUFFER    // will update avg every time a value is read
+  71   3            
+  72   3            //circular buffer implementation
+  73   3            
+  74   3            dc_avg_counter = (dc_avg_counter + 1) % BUFSIZE;
+  75   3            dc_sum = dc_sum - circular_buffer[dc_avg_counter];        //subtract the old value from the running sum
+  76   3            circular_buffer[dc_avg_counter] = val;
+  77   3            dc_sum = dc_sum + circular_buffer[dc_avg_counter];        //add new value to sum
+  78   3            dc_avg = dc_sum/BUFSIZE;
+  79   3            
+  80   3            
+  81   3            
+  82   3          #else                         // update avg every after DC_AVG_NUM_SAMPLES readings
+                    
+                    //block buffer implementation 
+                    
+                    dc_avg_counter = (dc_avg_counter + 1) % DC_AVG_NUM_SAMPLES;
+                    if (dc_avg_counter==0){ //after DC_AVG_NUM_SAMPLES readings, reset sum
+                      dc_avg= dc_sum/DC_AVG_NUM_SAMPLES;  //calculate avg
+                      dc_sum=0; //reset_sum   
+                    }
+                    dc_sum = dc_sum+val;
+                    
+                  #endif
+  94   3            
+  95   3          }
+  96   2        }
+  97   1        
+  98   1        else if(EXF2==1)    //if for some reason this triggered interrupt, reset to stop continual interrupts
+  99   1          EXF2 =0;
+ 100   1      } 
+ 101          
+ 102          void rms_measurment(){}         
+ 103          
+ 104          void p2p_measurement(){}      
+ 105          
+ 106          void frequency_measurement() 
+ 107          {
+ 108   1        //Setup the initial values of the static variables to ZERO
+ 109   1        static uint32 new_sample=0;
+ 110   1        static uint8 past_RCAP2H=0;
+ 111   1        static uint8 past_RCAP2L=0;
+ 112   1        
+ 113   1        
+ 114   1        if(EXF2==1){ // new edges incoming (of the periodic signal we want to measure) => end of the a period
+ 115   2          //What is the new sample ?
+C51 COMPILER V9.54   MEASUREMENT                                                           02/20/2018 16:53:45 PAGE 3   
+
+ 116   2          new_sample = (nb_overflow<<16)  + ((RCAP2H-past_RCAP2H)<<8) + (RCAP2L-past_RCAP2L); //concatenate the 3 b
+             -ytes
+ 117   2          //Update the average using IIR filter
+ 118   2          avg_freq=(new_sample*3)/20 + (avg_freq*17)/20;   //alpha chosen 0.15=3/20
+ 119   2          
+ 120   2          //Prepare the next interruption
+ 121   2          past_RCAP2H=RCAP2H;
+ 122   2          past_RCAP2L=RCAP2L;
+ 123   2          nb_overflow=0;
+ 124   2          EXF2=0;//clear the flag
+ 125   2        }
+ 126   1          else  //EXF2==0 and TF2==1
+ 127   1        {
+ 128   2            nb_overflow++;
+ 129   2            TF2=0; //clear the flag
+ 130   2        } 
+ 131   1        
+ 132   1      }
+ 133            
+ 134          uint16 read_analog_input_pin(){
+ 135   1      uint16 val =0;
+ 136   1        
+ 137   1        return val;
+ 138   1      } 
+ 139            
+ 140          
+ 141          /*------------------------------------------------
+ 142          Interrupt service routine for timer 2 interrupt.
+ 143          Called by the hardware when the interrupt occurs.
+ 144          ------------------------------------------------*/
+ 145          void timer2 (void) interrupt 5   // interrupt vector at 002BH
+ 146          {
+ 147   1        switch(mode){
+ 148   2          case 0:   dc_voltage_measurment();  break;
+ 149   2          case 1:   rms_measurment();         break;
+ 150   2          case 2:   p2p_measurement();        break;
+ 151   2          case 3:   frequency_measurement();  break;
+ 152   2        }   
+ 153   1        
+ 154   1      } // end timer2 interrupt service routine
+ 155          
+ 156          
+ 157          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    339    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     42       2
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
+>>>>>>> origin/master
