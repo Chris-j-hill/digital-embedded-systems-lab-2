@@ -9,8 +9,9 @@
 #define SWITCH_PORT_MASK 0x3;	//00000011
 #define SWITCH_PORT_MODE 0xFF	// 00 = all output FF = all input
 
-#define ANALOG_INPUT_PIN P1.2
-		
+//moved to measurement.h
+//#define ANALOG_INPUT_PORT P1
+
 
 
 #define CLOCK_SPEED	 11059200
@@ -52,11 +53,17 @@ void main (void) {
 }
 
 void init_pins(){
-//switch_pins
+  //switch_pins
 
 	SWITCH_PORT = SWITCH_PORT_MASK;	//explicitely set these pins leaving rest of port alone
-	ANALOG_INPUT_PIN = 0;						//set as input
-//init output pins for screen
+	
+	ADCCON1 = 0x8c;		//init adc
+	ADCCON2 = 0x22;
+	ADCCON3 = 0x00;
+	
+	
+	
+	//init output pins for screen
 
 }
 

@@ -1,6 +1,8 @@
 #include "measurement.h"
 #include <ADUC841.H>
 
+
+
 extern volatile uint8 mode;
 
 
@@ -103,8 +105,13 @@ void p2p_measurement(){}
 void frequency_measurement(){}
 	
 uint16 read_analog_input_pin(){
-uint16 val =0;
-	
+//CS0 = 0;	//confirm analog pin
+//CS1 = 1;
+//CS2 = 0;
+//CS3 = 0;
+uint8 val_LSB = ADCDATAL;
+uint8 val_MSB = ADCDATAH;
+uint16 val = (val_MSB>>8)+val_LSB;
 	return val;
 }	
 	

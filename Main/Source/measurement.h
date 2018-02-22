@@ -1,6 +1,10 @@
 #ifndef MEASUREMENT_H
 #define MEASUREMENT_H
 
+
+#define ANALOG_INPUT_PORT P1
+		
+
 #ifndef DATA_TYPES
 #define DATA_TYPES
 typedef unsigned char uint8;				// 8-bit unsigned integer
