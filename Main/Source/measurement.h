@@ -1,13 +1,7 @@
 #ifndef MEASUREMENT_H
 #define MEASUREMENT_H
 
-#ifndef DATA_TYPES
-#define DATA_TYPES
-typedef unsigned char uint8;				// 8-bit unsigned integer
-typedef unsigned short int uint16;	// 16-bit unsigned integer
-typedef unsigned int uint32;		//32 bit unsigned int
-#endif
-
+#include "config.h"
 
 	
 void setup_timers_dc_averaging();	
