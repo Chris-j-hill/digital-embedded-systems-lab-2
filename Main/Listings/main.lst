@@ -1,4 +1,4 @@
-C51 COMPILER V9.54   MAIN                                                                  02/22/2018 22:47:05 PAGE 1   
+C51 COMPILER V9.54   MAIN                                                                  02/24/2018 21:16:27 PAGE 1   
 
 
 C51 COMPILER V9.54, COMPILATION OF MODULE MAIN
@@ -8,201 +8,101 @@ COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE Source\main.c OPTIMIZE(8,SPEED) 
 
 line level    source
 
-   1          <<<<<<< HEAD
-*** ERROR C141 IN LINE 1 OF Source\main.c: syntax error near '<<'
-   2          #include <ADUC841.H>
-*** ERROR C129 IN LINE 12 OF C:\Keil_v5\C51\Inc\ADI\ADUC841.H: missing ';' before 'sfr'
-   3          
-   4          
-   5          #include "measurement.h"
-   6          #include "screen.h"
+   1          #include <ADUC841.H>
+   2          
+   3          #include "config.h"
+   4          #include "measurement.h"
+   5          #include "screen.h"
+   6          
    7          
-   8          #define SCREEN_UPDATE_DELAY_TIME 500  //delay for screen update in milliseconds
-   9          #define SWITCH_PORT  P2     // switches are connected to Port 2
-  10          #define SWITCH_PORT_MASK 0x3; //00000011
-  11          #define SWITCH_PORT_MODE 0xFF // 00 = all output FF = all input
+   8          // global variables
+   9          uint8 mode = 0;                 // mode of operation as read from pins
+  10          uint32 avg_freq = 0;
+  11          uint8 nb_overflow =0;
   12          
-  13          //moved to measurement.h
-  14          //#define ANALOG_INPUT_PORT P1
-  15          
-  16          
-  17          
-  18          #define CLOCK_SPEED  11059200
-  19          #define CLOCK_CYCLES_IN_ONE_MS = CLOCK_SPEED/1000
-  20          #define CLOCK_CYCLES_IN_FOR_LOOP 22 // value from counting assembled code
-  21          #define USE_CIRCULAR_BUFFER   // comment out to use block buffering
-  22          
-  23          
-  24          // global variables
-  25          uint8 mode = 0;                 // mode of operation as read from pins
-  26          
-  27          //// function prototypes
-  28          void init_pins();
-  29          
-  30          
-  31          //void setup_timer2_freq_period_counting();
-  32          //  
-  33          //void update_display();        //push values to display
-  34          void get_mode_from_pins();    //read mode from port
-  35          void delay(uint16 period);    
-  36          
-  37          //void dc_voltage_measurment(); // functions to store measurements as required
-  38          //void rms_measurment();        
-  39          //void p2p_measurement();       
-  40          //void frequency_measurement();
-  41          
-  42          
-  43          void main (void) {
-  44            // setup
-  45            init_pins();    //set switches and analog pins as input, leds as output and enable screen pins
-  46            init_screen();
-  47            
-  48            //loop
-  49            while(1){
-  50              update_display();
-  51              get_mode_from_pins();
-  52              delay(SCREEN_UPDATE_DELAY_TIME);
-C51 COMPILER V9.54   MAIN                                                                  02/22/2018 22:47:05 PAGE 2   
+  13          
+  14          
+  15          // function prototypes
+  16          void init_pins();
+  17          void get_mode_from_pins();    //read mode from port
+  18          void delay(uint16 period);    
+  19          
+  20          
+  21          void main (void) {
+  22   1        // setup
+  23   1        init_pins();    //set switches and analog pins as input, leds as output and enable screen pins
+  24   1        init_screen();
+  25   1        
+  26   1        //loop
+  27   1        while(1){
+  28   2          update_display();
+  29   2          get_mode_from_pins();
+  30   2          delay(SCREEN_UPDATE_DELAY_TIME);
+  31   2        }
+  32   1      }
+  33          
+  34          void init_pins(){
+  35   1        //switch_pins
+  36   1      
+  37   1        SWITCH_PORT = SWITCH_PORT_MASK; //explicitely set these pins leaving rest of port alone
+  38   1        
+  39   1        ADCCON1 = 0x8c;   //init adc
+  40   1        ADCCON2 = 0x22;
+  41   1        ADCCON3 = 0x00;
+  42   1        
+  43   1        
+  44   1        
+  45   1        //init output pins for screen
+  46   1      
+  47   1      }
+  48          
+  49          
+  50          void get_mode_from_pins(){    //read mode from port
+  51   1      
+  52   1        uint8 pin_state;
+  53   1        //read pins...
+  54   1        pin_state = SWITCH_PORT & SWITCH_PORT_MASK
+C51 COMPILER V9.54   MAIN                                                                  02/24/2018 21:16:27 PAGE 2   
 
-  53            }
-  54          }
-  55          
-  56          void init_pins(){
-  57            //switch_pins
-  58          
-  59            SWITCH_PORT = SWITCH_PORT_MASK; //explicitely set these pins leaving rest of port alone
-  60            
-  61            ADCCON1 = 0x8c;   //init adc
-  62            ADCCON2 = 0x22;
-  63            ADCCON3 = 0x00;
-  64            
-  65            
-  66            
-  67            //init output pins for screen
+  55   1        //if pin state != mode, setup hardware
+  56   1        if (pin_state != mode){ 
+  57   2          mode = pin_state;
+  58   2          
+  59   2          switch(mode){   //setup hardware based on new mode
+  60   3            case 0:   setup_timers_dc_averaging();      break;
+  61   3            case 1:         break;
+  62   3            case 2:         break;
+  63   3            case 3:   setup_timers_freq_period_counting();      break;
+  64   3            
+  65   3          }
+  66   2        }
+  67   1      }   
   68          
-  69          }
-  70          
-  71          
-  72          void get_mode_from_pins(){    //read mode from port
-  73          
-  74            uint8 pin_state;
-  75            //read pins...
-  76            pin_state = SWITCH_PORT & SWITCH_PORT_MASK
-  77            //if pin state != mode, setup hardware
-  78            if (pin_state != mode){ 
-  79              mode = pin_state;
-  80              
-  81              switch(mode){   //setup hardware based on new mode
-  82                case 0:   setup_timers_dc_averaging();      break;
-  83                case 1:         break;
-  84                case 2:         break;
-  85                case 3:   setup_timers_freq_period_counting();      break;
-  86                
-  87              }
-  88            }
-  89          }   
-  90          
-  91          void delay(uint32 period){
-  92            
-  93          unsigned int i;   // counting variable
-  94            period = period*CLOCK_CYCLES_IN_ONE_MS/CLOCK_CYCLES_IN_FOR_LOOP;
-  95             
-  96            for (i = 0; i < period; i++)    // count clock cycles
-  97            // Nb: the for loop above takes 22 clock cycles to execute as assembly
-  98              {}
-  99          
- 100          }   
- 101          
- 102          =======
- 103          #include <ADUC841.H>
- 104          
- 105          #include "config.h"
- 106          #include "measurement.h"
-              #include "screen.h"
-              
-              
-              
-              
-              // global variables
-              uint8 mode = 0;                 // mode of operation as read from pins
-              uint32 avg_freq = 0;
-C51 COMPILER V9.54   MAIN                                                                  02/22/2018 22:47:05 PAGE 3   
+  69          void delay(uint32 period){
+  70   1        
+  71   1      unsigned int i;   // counting variable
+  72   1        period = period*CLOCK_CYCLES_IN_ONE_MS/CLOCK_CYCLES_IN_FOR_LOOP;
+  73   1         
+  74   1        for (i = 0; i < period; i++)    // count clock cycles
+  75   1        // Nb: the for loop above takes 22 clock cycles to execute as assembly
+  76   1          {}
+  77   1      
+  78   1      }   
+  79          
+  80          
+  81          
+  82          
 
-              uint8 nb_overflow =0;
-              
-              //// function prototypes
-              void init_pins();
-              
-              
-              //void setup_timer2_freq_period_counting();
-              //  
-              //void update_display();        //push values to display
-              void get_mode_from_pins();    //read mode from port
-              void delay(uint16 period);    
-              
-              //void dc_voltage_measurment(); // functions to store measurements as required
-              //void rms_measurment();        
-              //void p2p_measurement();       
-              //void frequency_measurement();
-              
-              
-              void main (void) {
-                // setup
-                init_pins();    //set switches and analog pins as input, leds as output and enable screen pins
-                init_screen();
-                
-                //loop
-                while(1){
-                  
-                  update_display();
-                  get_mode_from_pins();
-                  delay(SCREEN_UPDATE_DELAY_TIME);
-                }
-              }
-              
-              void init_pins(){
-              //switch_pins
-              
-                SWITCH_PORT = SWITCH_PORT_MASK; //explicitely set these pins leaving rest of port alone
-                //ANALOG_INPUT_PIN = 0;           //set as input
-              //init output pins for screen
-              
-              }
-              
-              
-              void get_mode_from_pins(){    //read mode from port
-              
-                uint8 pin_state;
-                //read pins...
-                pin_state = SWITCH_PORT & SWITCH_PORT_MASK
-                //if pin state != mode, setup hardware
-                if (pin_state != mode){ 
-                  mode = pin_state;
-                  
-                  switch(mode){   //setup hardware based on new mode
-                    case 0:   setup_timers_dc_averaging();      break;
-                    case 1:         break;
-                    case 2:         break;
-                    case 3:   setup_timers_freq_period_counting();      break;
-                    
-                  }
-                }
-              }   
-              
-              void delay(uint32 period){
-C51 COMPILER V9.54   MAIN                                                                  02/22/2018 22:47:05 PAGE 4   
 
-                
-              unsigned int i;   // counting variable
-                period = period*CLOCK_CYCLES_IN_ONE_MS/CLOCK_CYCLES_IN_FOR_LOOP;
-                 
-                for (i = 0; i < period; i++)    // count clock cycles
-                // Nb: the for loop above takes 22 clock cycles to execute as assembly
-                  {}
-              
-              }   
-              
-              >>>>>>> origin/master
-*** WARNING C316 IN LINE 187 OF Source\main.c: unterminated conditionals
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     87    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      4    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
 
-C51 COMPILATION COMPLETE.  1 WARNING(S),  2 ERROR(S)
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
