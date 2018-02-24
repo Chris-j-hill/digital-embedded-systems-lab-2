@@ -14,15 +14,26 @@ volatile uint16 circular_buffer[BUFSIZE] ={0}; // array to hold values
 volatile uint16 block_buffer =0;			// simple value to store sum
 #define DC_AVG_NUM_SAMPLES 128
 #endif
-
 #define DC_TIMER_OVERFLOWS 10		// n*5.9 milliseconds between readings
 uint8 dc_voltage_num_timer_overflows =0;
-
 uint8 dc_avg_counter =0;
 uint16 dc_sum;
 volatile uint16 dc_avg;		// <<<  display this value
 
-//freq measurment
+
+
+// rms measurement variables
+
+volatile uint16 rms_value;
+
+
+//p2p measurement variables
+
+volatile uint16 p2p_value;
+
+
+
+//freq measurement variables
 extern volatile uint32 avg_freq;
 extern volatile uint8 nb_overflow;
 
