@@ -5,27 +5,34 @@
 
 extern volatile uint8 mode;
 
-
-//dc averaging variables
+// misc variables
 #ifdef USE_CIRCULAR_BUFFER
 #define BUFSIZE 16
 volatile uint16 circular_buffer[BUFSIZE] ={0}; // array to hold values
 #else
-volatile uint16 block_buffer =0;			// simple value to store sum
-#define DC_AVG_NUM_SAMPLES 128
-#endif
-#define DC_TIMER_OVERFLOWS 10		// n*5.9 milliseconds between readings
-uint8 dc_voltage_num_timer_overflows =0;
-uint8 dc_avg_counter =0;
-uint16 dc_sum;
-volatile uint16 dc_avg;		// <<<  display this value
+volatile uint16 block_buffer =0;								// simple value to store sum
+#define DC_AVG_NUM_SAMPLES BUFSIZE*4						// can afford to take more samples if block averaging
 
+#endif
+uint8 buff_index_counter =0;		//indexing variable for doing running sums/filtering
+
+
+
+
+//dc averaging variables
+#define DC_TIMER_OVERFLOWS 10		// n*5.9 milliseconds between readings
+uint8 dc_voltage_num_timer_overflows =0; //counter for the number of timer overflows
+uint16 dc_sum;
+volatile uint16 dc_avg;		// value to be displayed, stored as 12bit number, convert to volts before display
 
 
 // rms measurement variables
 
-volatile uint16 rms_value;
-
+#define RMS_TIMER_OVERFLOWS 5		// n*5.9 milliseconds between readings
+#define RMS_MEASUREMENT_NUM_SAMPLES 128		//number of samples taken before reporting result
+uint8 rms_measurement_num_timer_overflows = 0;
+uint32 rms_sum;		//sum needs to be 32bit since sum is of squared readings
+volatile uint16 rms_avg;
 
 //p2p measurement variables
 
@@ -36,6 +43,8 @@ volatile uint16 p2p_value;
 //freq measurement variables
 extern volatile uint32 avg_freq;
 extern volatile uint8 nb_overflow;
+
+
 
 
 void setup_timers_dc_averaging(){
@@ -83,10 +92,10 @@ void dc_voltage_measurment(){ // functions to store measurements as required
 			
 			//circular buffer implementation
 			
-			dc_avg_counter = (dc_avg_counter + 1) % BUFSIZE;
-			dc_sum = dc_sum - circular_buffer[dc_avg_counter];				//subtract the old value from the running sum
-			circular_buffer[dc_avg_counter] = val;
-			dc_sum = dc_sum + circular_buffer[dc_avg_counter];				//add new value to sum
+			buff_index_counter = (buff_index_counter + 1) % BUFSIZE;
+			dc_sum = dc_sum - circular_buffer[buff_index_counter];				//subtract the old value from the running sum
+			circular_buffer[buff_index_counter] = val;
+			dc_sum = dc_sum + circular_buffer[buff_index_counter];				//add new value to sum
 			dc_avg = dc_sum/BUFSIZE;
 			
 			
@@ -95,8 +104,8 @@ void dc_voltage_measurment(){ // functions to store measurements as required
 			
 			//block buffer implementation 
 			
-			dc_avg_counter = (dc_avg_counter + 1) % DC_AVG_NUM_SAMPLES;
-			if (dc_avg_counter==0){	//after DC_AVG_NUM_SAMPLES readings, reset sum
+			buff_index_counter = (buff_index_counter + 1) % DC_AVG_NUM_SAMPLES;
+			if (buff_index_counter==0){	//after DC_AVG_NUM_SAMPLES readings, reset sum
 				dc_avg= dc_sum/DC_AVG_NUM_SAMPLES;	//calculate avg
 				dc_sum=0;	//reset_sum		
 			}
@@ -111,12 +120,34 @@ void dc_voltage_measurment(){ // functions to store measurements as required
 		EXF2 =0;
 }	
 
-void rms_measurment(){} 				
+void rms_measurment(){
+
+	if (TF2 == 1){	//if counter overflow, increment counter
+		rms_measurement_num_timer_overflows = (rms_measurement_num_timer_overflows+1) % RMS_TIMER_OVERFLOWS;
+		TF2 = 0;
+
+			if(rms_measurement_num_timer_overflows ==0){	
+				
+				uint16 val = read_analog_input_pin();
+				
+				buff_index_counter = (buff_index_counter + 1) % RMS_MEASUREMENT_NUM_SAMPLES;
+				if (buff_index_counter==0){	//after DC_AVG_NUM_SAMPLES readings, reset sum
+					rms_avg = my_sqrt((rms_sum/RMS_MEASUREMENT_NUM_SAMPLES));	//calculate avg
+					rms_sum=0;	//reset_sum		
+				}
+				rms_sum = rms_sum+(val*val);		//running sum of squared readings
+				
+			}
+		}
+
+	else if(EXF2==1)		//if for some reason this triggered interrupt, reset to stop continual interrupts
+		EXF2 =0;
+
+} 				
 
 void p2p_measurement(){} 			
 
-void frequency_measurement() 
-{
+void frequency_measurement() {
 	//Setup the initial values of the static variables to ZERO
 	static uint32 new_sample=0;
 	static uint8 past_RCAP2H=0;
@@ -169,3 +200,33 @@ void timer2 (void) interrupt 5   // interrupt vector at 002BH
 	}		
 	
 }	// end timer2 interrupt service routine
+
+uint8 analog_reading_to_voltage(uint16 value){
+	return ((value*VOLTAGE_RANGE)/4096);
+}
+
+uint8 my_sqrt(uint16 squared_val){
+	
+	/* method:
+	sum odd numbers up to squared_val
+	number of values used in sum is root
+	
+	1+3 = 4 				-> 2 values in sum, 2 is root of 4
+	1+3+5 = 9				-> 3 is root 9
+	1+3+5+7 = 16		-> 4 is root 16
+	1+3+5+7+9 = 25	-> 5 is root 25
+	...
+	
+	this method should be fast since no multiplication required
+	*/
+	
+	uint8 i;		//odd numbers to be added to sum
+	uint16 x=0;		//running total
+	uint8 count=0;
+	for(i=1;x<=squared_val;i+=2)
+        {
+            x = x + i;
+            count++;
+        }
+	return count;
+}

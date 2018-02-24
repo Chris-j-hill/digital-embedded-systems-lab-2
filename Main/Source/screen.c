@@ -6,7 +6,7 @@ extern uint8 mode;
 
 
 extern volatile uint16 dc_avg;		// <<<  use these value when displaying
-extern volatile uint16 rms_value;
+extern volatile uint16 rms_avg;
 extern volatile uint16 p2p_value;
 extern volatile uint32 avg_freq;
 
