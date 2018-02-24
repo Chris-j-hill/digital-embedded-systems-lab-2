@@ -10,9 +10,9 @@ typedef unsigned int uint32;		//32 bit unsigned int
 #define SWITCH_PORT_MASK 0x3;	//00000011
 #define SWITCH_PORT_MODE 0xFF	// 00 = all output FF = all input
 
-#define ANALOG_INPUT_PIN P1.2
-		
 
+#define ANALOG_INPUT_PORT P1
+		
 #define CLOCK_SPEED	 11059200 //unit important Hz
 #define CLOCK_CYCLES_IN_ONE_MS = CLOCK_SPEED/1000
 #define CLOCK_CYCLES_IN_FOR_LOOP 22	// value from counting assembled code
