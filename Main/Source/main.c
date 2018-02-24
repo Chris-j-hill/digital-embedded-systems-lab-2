@@ -77,6 +77,3 @@ unsigned int i;		// counting variable
 
 }		
 
-
-
-
