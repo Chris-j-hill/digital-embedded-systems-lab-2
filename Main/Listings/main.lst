@@ -1,4 +1,4 @@
-C51 COMPILER V9.54   MAIN                                                                  02/24/2018 23:47:15 PAGE 1   
+C51 COMPILER V9.54   MAIN                                                                  02/25/2018 01:10:50 PAGE 1   
 
 
 C51 COMPILER V9.54, COMPILATION OF MODULE MAIN
@@ -62,7 +62,7 @@ line level    source
   52   1        uint8 pin_state;
   53   1        //read pins...
   54   1        pin_state = SWITCH_PORT & SWITCH_PORT_MASK
-C51 COMPILER V9.54   MAIN                                                                  02/24/2018 23:47:15 PAGE 2   
+C51 COMPILER V9.54   MAIN                                                                  02/25/2018 01:10:50 PAGE 2   
 
   55   1        //if pin state != mode, setup hardware
   56   1        if (pin_state != mode){ 
@@ -70,7 +70,7 @@ line level    source
   58   2          
   59   2          switch(mode){   //setup hardware based on new mode
   60   3            case 0:   setup_timers_dc_averaging();      break;
-  61   3            case 1:         break;
+  61   3            case 1:   setup_timers_rms_measurment();    break;
   62   3            case 2:         break;
   63   3            case 3:   setup_timers_freq_period_counting();      break;
   64   3            
@@ -92,7 +92,7 @@ line level    source
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =     87    ----
+   CODE SIZE        =     93    ----
    CONSTANT SIZE    =   ----    ----
    XDATA SIZE       =   ----    ----
    PDATA SIZE       =   ----    ----

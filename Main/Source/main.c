@@ -58,10 +58,9 @@ void get_mode_from_pins(){		//read mode from port
 		
 		switch(mode){		//setup hardware based on new mode
 			case 0: 	setup_timers_dc_averaging();			break;
-			case 1:					break;
+			case 1:		setup_timers_rms_measurment();		break;
 			case 2:					break;
-			case 3:		setup_timers_freq_period_counting();			break;
-			
+			case 3:		setup_timers_freq_period_counting();			break;		
 		}
 	}
 }		

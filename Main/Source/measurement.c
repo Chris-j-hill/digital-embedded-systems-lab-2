@@ -57,7 +57,11 @@ void setup_timers_dc_averaging(){
 
 }
 	
-	
+void setup_timers_rms_measurment(){		//same as dc averaging...
+		T2CON = 7;  // all zero except run control
+    ET2   = 1;     // enable timer 2 interrupt
+		EA = 1;
+}	
 
 void setup_timers_freq_period_counting() {
 		// Set up timer 2 in timer mode (bit1), capture mode(bit0), external control activated(bit3), timer run(bit2), serial not needed(bit4-5),then interrupt modified by hardware
@@ -218,6 +222,9 @@ uint8 my_sqrt(uint16 squared_val){
 	...
 	
 	this method should be fast since no multiplication required
+	Note: will return the root rounded up to nearest value 
+	-> my_sqrt(2), my_sqrt(3), my_sqrt(4) will all return 2
+	
 	*/
 	
 	uint8 i;		//odd numbers to be added to sum
@@ -227,6 +234,7 @@ uint8 my_sqrt(uint16 squared_val){
         {
             x = x + i;
             count++;
+
         }
 	return count;
 }

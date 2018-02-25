@@ -6,6 +6,7 @@
 	
 void setup_timers_dc_averaging();	
 void setup_timers_freq_period_counting();
+void setup_timers_rms_measurment();
 	
 void dc_voltage_measurment(); // functions to store measurements as required
 void rms_measurment(); 				
