@@ -18,4 +18,6 @@ typedef unsigned int uint32;		//32 bit unsigned int
 #define CLOCK_CYCLES_IN_FOR_LOOP 22	// value from counting assembled code
 #define USE_CIRCULAR_BUFFER		// comment out to use block buffering
 
+#define VOLTAGE_RANGE 5
+
 #endif
