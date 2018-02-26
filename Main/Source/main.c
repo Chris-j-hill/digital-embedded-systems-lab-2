@@ -8,7 +8,7 @@
 // global variables
 uint8 mode = 0;                 // mode of operation as read from pins
 uint32 avg_freq = 0;
-uint8 nb_overflow =0;
+uint16 nb_overflow =0;					//to make a 32bits counter of clock cycles in the freq calculation
 
 
 
@@ -48,13 +48,15 @@ void init_pins(){
 
 
 void get_mode_from_pins(){		//read mode from port
+// we don't care about the time effiency of that function since we delay it later
+	// so it iplies switch case is fine and not comparison to previous state of mode variable
 
-	uint8 pin_state;
-	//read pins...
-	pin_state = SWITCH_PORT & SWITCH_PORT_MASK
-	//if pin state != mode, setup hardware
-	if (pin_state != mode){	
-		mode = pin_state;
+	mode = SWITCH_PORT & SWITCH_PORT_MASK;
+	
+//		uint8 pin_state;
+//	pin_state = SWITCH_PORT & SWITCH_PORT_MASK;
+//	if (pin_state != mode){	
+//		mode = pin_state;
 		
 		switch(mode){		//setup hardware based on new mode
 			case 0: 	setup_timers_dc_averaging();			break;
@@ -62,7 +64,7 @@ void get_mode_from_pins(){		//read mode from port
 			case 2:					break;
 			case 3:		setup_timers_freq_period_counting();			break;		
 		}
-	}
+	//}
 }		
 
 void delay(uint32 period){

@@ -14,7 +14,7 @@ void init_screen(){}			//initilisation bits for screen
 
 void update_display(){
 	uint32 frequency;
-	
+	uint32 clock;
 	switch(mode){		//setup hardware based on new mode
 		case 0:
 		case 1:			break;
@@ -22,8 +22,11 @@ void update_display(){
 		case 3:  // frequency
 			
 		//Compute the frequency
-		frequency =((uint32) CLOCK_SPEED)/avg_freq; //Hz
-			
+//		frequency =((uint32) CLOCK_SPEED)/avg_freq; //Hz
+//			
+		clock=119526;
+		frequency = clock/avg_freq; //Hz
+		
 		break;
 
 					
