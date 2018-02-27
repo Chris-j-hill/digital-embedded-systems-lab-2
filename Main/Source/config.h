@@ -1,6 +1,12 @@
 
 #ifndef DATA_TYPES
 #define DATA_TYPES
+
+#ifndef ADCUC841_H
+#define ADCUC841_H
+#include <ADUC841.H>
+#endif
+
 typedef unsigned char uint8;				// 8-bit unsigned integer
 typedef unsigned short int uint16;	// 16-bit unsigned integer
 typedef unsigned int uint32;		//32 bit unsigned int
@@ -13,11 +19,15 @@ typedef unsigned int uint32;		//32 bit unsigned int
 
 #define ANALOG_INPUT_PORT P1
 		
-#define CLOCK_SPEED	 11059200 //unit important Hz
+#define CLOCK_SPEED	 11059200L //unit important Hz
 #define CLOCK_CYCLES_IN_ONE_MS = CLOCK_SPEED/1000
 #define CLOCK_CYCLES_IN_FOR_LOOP 22	// value from counting assembled code
 #define USE_CIRCULAR_BUFFER		// comment out to use block buffering
 
 #define VOLTAGE_RANGE 5
+
+#define highestDisplayableNumberHz 9999;
+
+sbit Slave_select = 0xB6;  // initialize Slave Select bit to ENABLE from the bit on P3.6
 
 #endif
