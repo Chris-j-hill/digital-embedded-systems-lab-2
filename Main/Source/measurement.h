@@ -1,7 +1,7 @@
 #ifndef MEASUREMENT_H
 #define MEASUREMENT_H
 
-#include "config.h"
+
 
 	
 void setup_timers_dc_averaging();	

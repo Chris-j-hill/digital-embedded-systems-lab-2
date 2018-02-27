@@ -1,4 +1,3 @@
-#include <ADUC841.H>
 
 #include "config.h"
 #include "measurement.h"
@@ -6,7 +5,7 @@
 
 
 // global variables
-uint8 mode = 0;                 // mode of operation as read from pins
+uint8 mode = 3;                 // mode of operation as read from pins
 uint32 avg_freq = 0;
 uint16 nb_overflow =0;					//to make a 32bits counter of clock cycles in the freq calculation
 
@@ -40,10 +39,15 @@ void init_pins(){
 	ADCCON2 = 0x22;
 	ADCCON3 = 0x00;
 	
-	
+	T2EX =0;
 	
 	//init output pins for screen
-
+	switch(mode){		//setup hardware based on new mode
+			case 0: 	setup_timers_dc_averaging();			break;
+			case 1:		setup_timers_rms_measurment();		break;
+			case 2:					break;
+			case 3:		setup_timers_freq_period_counting();			break;		
+		}
 }
 
 
@@ -58,12 +62,7 @@ void get_mode_from_pins(){		//read mode from port
 //	if (pin_state != mode){	
 //		mode = pin_state;
 		
-		switch(mode){		//setup hardware based on new mode
-			case 0: 	setup_timers_dc_averaging();			break;
-			case 1:		setup_timers_rms_measurment();		break;
-			case 2:					break;
-			case 3:		setup_timers_freq_period_counting();			break;		
-		}
+		
 	//}
 }		
 
