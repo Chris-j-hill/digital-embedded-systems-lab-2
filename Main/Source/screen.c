@@ -48,11 +48,27 @@ void update_display(){
 		case 1:			break;
 		case 2:			break;
 		case 3:  // frequency
-			
-		//Compute the frequency
-		displayVariable=CLOCK_SPEED/avg_freq; //Hz		
 		
-		//displayVariable = clock/avg_freq; //Hz
+		//Compute the frequency
+		if(freq_method==0) //we are measuring a low frequency
+		{
+			displayVariable=CLOCK_SPEED/avg_freq; //Hz		
+			//displayVariable = clock/avg_freq; //Hz
+		}
+		else //  freq_method = 1  , we are measuring a high frequency
+			displayVariable = pulses_in_interval / (0xFFFF) *CLOCK_SPEED; 
+	
+		//choosing the frequency measurement method
+			if(displayVariable > 14000)
+			{
+			freq_method = 1;
+			setup_Timer0();   // call the function to set up timer 0 to count the number of falling edges 	
+			}
+			else
+			{
+				freq_method = 0; 
+				TR0 = 0; // stop 	Timer 0
+			}
 		
 		break;
 	}	

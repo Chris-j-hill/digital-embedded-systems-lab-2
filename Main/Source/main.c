@@ -8,6 +8,7 @@
 uint8 mode = 3;                 // mode of operation as read from pins
 uint32 avg_freq = 0;
 uint16 nb_overflow =0;					//to make a 32bits counter of clock cycles in the freq calculation
+uint8 freq_method = 0; // 1 = high frequency method,  0 = low frequency method
 
 
 
