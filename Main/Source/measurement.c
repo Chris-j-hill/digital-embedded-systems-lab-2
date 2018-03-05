@@ -81,6 +81,13 @@ void setup_timers_freq_period_counting() {
 	
 }
 
+void setup_Timer0()
+{
+	TCON = 17; //set up Timer 0 to count 
+	TMOD = 5;
+	
+}
+
 
 
 
