@@ -17,5 +17,4 @@ uint8 my_sqrt(uint16 squared_val);	//square root calculater
 uint8 analog_reading_to_voltage(uint16 value);	//convert a value from 12bit reading to voltage
 void timer2 (void);
 
-
 #endif
