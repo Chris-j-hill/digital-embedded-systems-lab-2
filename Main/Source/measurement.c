@@ -236,8 +236,7 @@ uint8 my_sqrt(uint16 squared_val){
 	...
 	
 	this method should be fast since no multiplication required
-	Note: will return the root rounded up to nearest value 
-	-> my_sqrt(2), my_sqrt(3), my_sqrt(4) will all return 2
+	to identify the value
 	
 	*/
 	
@@ -250,7 +249,11 @@ uint8 my_sqrt(uint16 squared_val){
             count++;
 
         }
-	return count;
+	if (count*count == squared_val)	
+		return count;
+	
+	else 
+		return (count-1);
 }
 
 
