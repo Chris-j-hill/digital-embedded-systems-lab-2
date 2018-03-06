@@ -27,7 +27,8 @@ void main (void) {
 	while(1){
 		update_display();
 		get_mode_from_pins();
-		delay(SCREEN_UPDATE_DELAY_TIME);
+		//delay(SCREEN_UPDATE_DELAY_TIME);
+		delay(500000);
 	}
 }
 
@@ -75,8 +76,8 @@ void get_mode_from_pins(){		//read mode from port
 
 void delay(uint32 period){
 	
-unsigned int i;		// counting variable
-	period = period*CLOCK_CYCLES_IN_ONE_MS/CLOCK_CYCLES_IN_FOR_LOOP;
+	uint32 i;		// counting variable
+//	period = period*CLOCK_CYCLES_IN_ONE_MS/CLOCK_CYCLES_IN_FOR_LOOP;
 	 
 	for (i = 0; i < period; i++)    // count clock cycles
 	// Nb: the for loop above takes 22 clock cycles to execute as assembly

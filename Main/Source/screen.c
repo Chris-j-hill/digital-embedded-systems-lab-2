@@ -18,7 +18,7 @@ extern volatile uint16 p2p_value;
 extern volatile uint32 avg_freq;
 extern uint8 freq_method;
 extern uint16 pulses_in_interval;
-
+uint32 displayVariable=0;
 
 
 const uint8 displaytable[]={	// 0     1     2     3     4     5     6     7     8     9
@@ -39,43 +39,34 @@ void init_screen(){
 }			
 
 void update_display(){
-	uint32 displayVariable;
-	uint32 clock=119526;
-	
-	uint8 indexDisplay=0;
-	uint8 input_data=0;
+
+
 	uint8 index;
 	
 	switch(mode){		//setup hardware based on new mode
 		case 0:
-			displayVariable = analog_reading_to_voltage(dc_avg);
-			
-		
+
+			displayVariable = (((uint32)dc_avg)*VOLTAGE_RANGE)>>12;
+
 		break;
-		case 1:			break;
+		case 1:
+			displayVariable =rms_avg;
+			//displayVariable = my_sqrt(rms_avg);
+			//displayVariable = (((uint32)displayVariable)*VOLTAGE_RANGE)>>12;
+		break;
 		case 2:			break;
 		case 3:  // frequency
 		
-		//Compute the frequency
-		if(freq_method==0) //we are measuring a low frequency
-		{
-			displayVariable=CLOCK_SPEED/avg_freq; //Hz		
-			//displayVariable = clock/avg_freq; //Hz
-		}
-		else //  freq_method = 1  , we are measuring a high frequency
-			displayVariable = pulses_in_interval / (0xFFFF) *CLOCK_SPEED; 
 	
-		//choosing the frequency measurement method
-			if(displayVariable > 14000)
-			{
-			freq_method = 1;
-			setup_Timer0();   // call the function to set up timer 0 to count the number of falling edges 	
-			}
-			else
-			{
-				freq_method = 0; 
-				TR0 = 0; // stop 	Timer 0
-			}
+//		//Compute the frequency
+//		if(freq_method==0) //we are measuring a low frequency
+//		{
+//			displayVariable=CLOCK_SPEED/avg_freq; //Hz		
+//			//displayVariable = clock/avg_freq; //Hz
+//		}
+//		else //  freq_method = 1  , we are measuring a high frequency
+			displayVariable = ((uint32)pulses_in_interval)*200;
+			
 		if (displayVariable>9999)
 			displayVariable/=1000; //so freq is in kHz
 

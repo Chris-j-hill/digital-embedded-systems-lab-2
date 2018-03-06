@@ -14,7 +14,7 @@ void p2p_measurement();
 void frequency_measurement();
 uint16 read_analog_input_pin();		//return voltage from analog pin
 uint8 my_sqrt(uint16 squared_val);	//square root calculater
-uint8 analog_reading_to_voltage(uint16 value);	//convert a value from 12bit reading to voltage
+uint16 analog_reading_to_voltage(uint16 value);	//convert a value from 12bit reading to voltage
 void timer2 (void);
-
+void setup_Timer0();
 #endif

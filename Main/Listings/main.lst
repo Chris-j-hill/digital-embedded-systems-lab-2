@@ -1,4 +1,4 @@
-C51 COMPILER V9.54   MAIN                                                                  03/06/2018 11:35:21 PAGE 1   
+C51 COMPILER V9.54   MAIN                                                                  03/06/2018 20:24:44 PAGE 1   
 
 
 C51 COMPILER V9.54, COMPILATION OF MODULE MAIN
@@ -37,79 +37,81 @@ line level    source
   27   1        while(1){
   28   2          update_display();
   29   2          get_mode_from_pins();
-  30   2          delay(SCREEN_UPDATE_DELAY_TIME);
-  31   2        }
-  32   1      }
-  33          
-  34          void init_pins(){
-  35   1        //switch_pins
-  36   1      
-  37   1        SWITCH_PORT = SWITCH_PORT_MASK; //explicitely set these pins leaving rest of port alone
-  38   1        
-  39   1        ADCCON1 = 0x8c; //1000 1100 : bit7=ADC on, bit6 no external reference,bit5-6 LOW biggest divider=lowest f
+  30   2          //delay(SCREEN_UPDATE_DELAY_TIME);
+  31   2          delay(500000);
+  32   2        }
+  33   1      }
+  34          
+  35          void init_pins(){
+  36   1        //switch_pins
+  37   1      
+  38   1        SWITCH_PORT = SWITCH_PORT_MASK; //explicitely set these pins leaving rest of port alone
+  39   1        
+  40   1        ADCCON1 = 0x8c; //1000 1100 : bit7=ADC on, bit6 no external reference,bit5-6 LOW biggest divider=lowest f
              -requency to sample, bit3-2 means 4 clocks cycle to get the conversion done, bit0-1 LOW to disable external trigerring of
              - the ADC 
-  40   1        ADCCON2 = 0x22; //0010 0010 : bit7 LOW not us = interupt from hardware, bit 6 LOW not using DMA mode,bit5
+  41   1        ADCCON2 = 0x22; //0010 0010 : bit7 LOW not us = interupt from hardware, bit 6 LOW not using DMA mode,bit5
              - :continuous conversion = always working, bit4 LOW not Single Conversion Bit , nit 3-2-1-0 channel 2 selected
-  41   1        ADCCON3 = 0x00;
-  42   1        
-  43   1        T2EX =0;
-  44   1        
-  45   1        //init output pins for screen
-  46   1        switch(mode){   //setup hardware based on new mode
-  47   2            case 0:   setup_timers_dc_averaging();      break;
-  48   2            case 1:   setup_timers_rms_measurment();    break;
-  49   2            case 2:         break;
-  50   2            case 3:   setup_timers_freq_period_counting();      break;    
-  51   2          }
-C51 COMPILER V9.54   MAIN                                                                  03/06/2018 11:35:21 PAGE 2   
+  42   1        ADCCON3 = 0x00;
+  43   1        
+  44   1        T2EX =0;
+  45   1        
+  46   1        //init output pins for screen
+  47   1        switch(mode){   //setup hardware based on new mode
+  48   2            case 0:   setup_timers_dc_averaging();      break;
+  49   2            case 1:   setup_timers_rms_measurment();    break;
+  50   2            case 2:         break;
+  51   2            case 3:   setup_timers_freq_period_counting();      break;    
+C51 COMPILER V9.54   MAIN                                                                  03/06/2018 20:24:44 PAGE 2   
 
-  52   1      }
-  53          
+  52   2          }
+  53   1      }
   54          
-  55          void get_mode_from_pins(){    //read mode from port
-  56   1      // we don't care about the time effiency of that function since we delay it later
-  57   1        // so it iplies switch case is fine and not comparison to previous state of mode variable
-  58   1      
-  59   1        mode = SWITCH_PORT & SWITCH_PORT_MASK;
-  60   1        
-  61   1      //    uint8 pin_state;
-  62   1      //  pin_state = SWITCH_PORT & SWITCH_PORT_MASK;
-  63   1      //  if (pin_state != mode){ 
-  64   1      //    mode = pin_state;
-  65   1          //init output pins for screen
-  66   1        switch(mode){   //setup hardware based on new mode
-  67   2            case 0:   setup_timers_dc_averaging();      break;
-  68   2            case 1:   setup_timers_rms_measurment();    break;
-  69   2            case 2:         break;
-  70   2            case 3:   setup_timers_freq_period_counting();      break;    
-  71   2          }
-  72   1          
-  73   1        //}
-  74   1      }   
-  75          
-  76          void delay(uint32 period){
-  77   1        
-  78   1      unsigned int i;   // counting variable
-  79   1        period = period*CLOCK_CYCLES_IN_ONE_MS/CLOCK_CYCLES_IN_FOR_LOOP;
-  80   1         
-  81   1        for (i = 0; i < period; i++)    // count clock cycles
-  82   1        // Nb: the for loop above takes 22 clock cycles to execute as assembly
-  83   1          {}
-  84   1      
-  85   1      }   
-  86          
+  55          
+  56          void get_mode_from_pins(){    //read mode from port
+  57   1      // we don't care about the time effiency of that function since we delay it later
+  58   1        // so it iplies switch case is fine and not comparison to previous state of mode variable
+  59   1      
+  60   1        mode = SWITCH_PORT & SWITCH_PORT_MASK;
+  61   1        
+  62   1      //    uint8 pin_state;
+  63   1      //  pin_state = SWITCH_PORT & SWITCH_PORT_MASK;
+  64   1      //  if (pin_state != mode){ 
+  65   1      //    mode = pin_state;
+  66   1          //init output pins for screen
+  67   1        switch(mode){   //setup hardware based on new mode
+  68   2            case 0:   setup_timers_dc_averaging();      break;
+  69   2            case 1:   setup_timers_rms_measurment();    break;
+  70   2            case 2:         break;
+  71   2            case 3:   setup_timers_freq_period_counting();      break;    
+  72   2          }
+  73   1          
+  74   1        //}
+  75   1      }   
+  76          
+  77          void delay(uint32 period){
+*** WARNING C235 IN LINE 77 OF Source\main.c: parameter 1: different types
+  78   1        
+  79   1        uint32 i;   // counting variable
+  80   1      //  period = period*CLOCK_CYCLES_IN_ONE_MS/CLOCK_CYCLES_IN_FOR_LOOP;
+  81   1         
+  82   1        for (i = 0; i < period; i++)    // count clock cycles
+  83   1        // Nb: the for loop above takes 22 clock cycles to execute as assembly
+  84   1          {}
+  85   1      
+  86   1      }   
+  87          
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =    110    ----
+   CODE SIZE        =    148    ----
    CONSTANT SIZE    =   ----    ----
    XDATA SIZE       =   ----    ----
    PDATA SIZE       =   ----    ----
-   DATA SIZE        =      6    ----
+   DATA SIZE        =      8       8
    IDATA SIZE       =   ----    ----
    BIT SIZE         =   ----    ----
 END OF MODULE INFORMATION.
 
 
-C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
+C51 COMPILATION COMPLETE.  1 WARNING(S),  0 ERROR(S)
