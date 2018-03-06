@@ -27,8 +27,8 @@ uint8 buff_index_counter =0;		//indexing variable for doing running sums/filteri
 //dc averaging variables
 #define DC_TIMER_OVERFLOWS 8		// n*5.9 milliseconds between readings. NOTE: must be a power of 2
 #define DC_TIMER_INCREMENT 256/DC_TIMER_OVERFLOWS
-uint16 dc_sum;
-volatile uint16 dc_avg;		// value to be displayed, stored as 12bit number, convert to volts before display
+uint16 dc_sum=0;
+volatile uint16 dc_avg =0;		// value to be displayed, stored as 12bit number, convert to volts before display
 
 
 // rms measurement variables
@@ -47,13 +47,13 @@ volatile uint16 p2p_value;
 //freq measurement variables
 extern volatile uint32 avg_freq;
 extern volatile uint8 nb_overflow;
-
-
+uint16 pulses_in_interval=0;
+extern uint8 freq_method;
 
 
 void setup_timers_dc_averaging(){
 		
-		T2CON = 7;  // all zero except run control
+		T2CON = 4;  // all zero except run control
     ET2   = 1;     // enable timer 2 interrupt
 		EA = 1;
 	
@@ -70,7 +70,8 @@ void setup_timers_rms_measurment(){		//same as dc averaging...
 void setup_timers_freq_period_counting() {
 		// Set up timer 2 in timer mode (bit1), capture mode(bit0), external control activated(bit3), timer run(bit2), serial not needed(bit4-5),then interrupt modified by hardware
 //    T2CON = #00001101b;  // all zero except run control
-    T2CON = 13;  // all zero except run control
+
+  	T2CON = 13;  // all zero except run control
     ET2   = 1;     // enable timer 2 interrupt
 		EA = 1;				// enable general interrupt
 	
@@ -114,9 +115,9 @@ void dc_voltage_measurment(){ // functions to store measurements as required
 			dc_sum = dc_sum - circular_buffer[buff_index_counter];				//subtract the old value from the running sum
 			circular_buffer[buff_index_counter] = val;
 			dc_sum = dc_sum + circular_buffer[buff_index_counter];				//add new value to sum
-			dc_avg = dc_sum/BUFSIZE;
+			dc_avg = dc_sum>>4;
 			
-			
+			dc_sum = dc_sum;
 			
 		#else													// update avg every after DC_AVG_NUM_SAMPLES readings
 			
@@ -159,7 +160,7 @@ void rms_measurment(){
 				if (buff_index_counter==0){	//after DC_AVG_NUM_SAMPLES readings, calculate rms and reset sum
 					rms_avg = my_sqrt((rms_sum/RMS_MEASUREMENT_NUM_SAMPLES));
 					rms_sum=0;
-				}
+				}	
 			}
 		}
 
@@ -175,27 +176,44 @@ void frequency_measurement() {
 	static uint16 old_sample=0;
 	
 	
-	if(EXF2==1){ // new edges incoming (of the periodic signal we want to measure) => end of the a period
-		//What is the new sample ?
-		
-		new_sample = ((uint32)nb_overflow<<16)	| ((uint32)RCAP2H<<8) | ((uint32)RCAP2L); //concatenate the 3 bytes
-		new_sample -=old_sample;
-		
-		//Update the average using IIR filter
-		avg_freq=(new_sample*3)/20 + (avg_freq*17)/20;   //alpha chosen 0.15=3/20
-		
-		//Prepare the next interruption
-		old_sample= ((uint16)RCAP2H)<<8 | ((uint16)RCAP2L);
-
-		nb_overflow=0;
-		EXF2=0;//clear the flag
-	}
-		else	//EXF2==0 and TF2==1
-	{
-			nb_overflow++;
-			TF2=0; //clear the flag
-	} 
 	
+	if (freq_method){	//time interval elapsed, read value in 16 bit timer 1 register
+	
+		
+		new_sample = ((uint16) TH1<<8)| ((uint16) TL1);
+		if (new_sample<=old_sample){ //overflow occured, account for this
+		pulses_in_interval = (new_sample+65536)-old_sample;
+		}
+		else {
+			pulses_in_interval = new_sample-old_sample;
+		}
+		old_sample = new_sample;// log value fro next interrupt
+		
+	}
+		
+	else{
+			
+		if(EXF2==1){ // new edges incoming (of the periodic signal we want to measure) => end of the a period
+			//What is the new sample ?
+			
+			new_sample = ((uint32)nb_overflow<<16)	| ((uint32)RCAP2H<<8) | ((uint32)RCAP2L); //concatenate the 3 bytes
+			new_sample -=old_sample;
+			
+			//Update the average using IIR filter
+			avg_freq=(new_sample*3)/20 + (avg_freq*17)/20;   //alpha chosen 0.15=3/20
+			
+			//Prepare the next interruption
+			old_sample= ((uint16)RCAP2H)<<8 | ((uint16)RCAP2L);
+
+			nb_overflow=0;
+			EXF2=0;//clear the flag
+		}
+			else	//EXF2==0 and TF2==1
+		{
+				nb_overflow++;
+				TF2=0; //clear the flag
+		} 
+	}
 }
 	
 uint16 read_analog_input_pin(){
@@ -205,7 +223,7 @@ uint16 read_analog_input_pin(){
 //CS3 = 0;
 uint8 val_LSB = ADCDATAL;
 uint8 val_MSB = ADCDATAH;
-uint16 val = (val_MSB>>8)+val_LSB;
+uint16 val = (val_MSB<<8)+val_LSB;
 	return val;
 }	
 
@@ -225,6 +243,8 @@ void timer2 (void) interrupt 5   // interrupt vector at 002BH
 	}		
 	
 }	// end timer2 interrupt service routine
+
+
 
 uint8 analog_reading_to_voltage(uint16 value){
 	return ((value*VOLTAGE_RANGE)/4096);
