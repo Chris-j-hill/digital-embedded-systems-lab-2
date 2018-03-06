@@ -175,10 +175,9 @@ void frequency_measurement() {
 	static uint32 new_sample=0;
 	static uint16 old_sample=0;
 	
-	
+	static uint16 pulses_in_interval=0;
 	
 	if (freq_method){	//time interval elapsed, read value in 16 bit timer 1 register
-	
 		
 		new_sample = ((uint16) TH1<<8)| ((uint16) TL1);
 		if (new_sample<=old_sample){ //overflow occured, account for this
@@ -187,7 +186,8 @@ void frequency_measurement() {
 		else {
 			pulses_in_interval = new_sample-old_sample;
 		}
-		old_sample = new_sample;// log value fro next interrupt
+		old sample = new_sample;// log value fro next interrupt
+
 		
 	}
 		
