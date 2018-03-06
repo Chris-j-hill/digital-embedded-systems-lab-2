@@ -27,8 +27,8 @@ uint8 buff_index_counter =0;		//indexing variable for doing running sums/filteri
 //dc averaging variables
 #define DC_TIMER_OVERFLOWS 8		// n*5.9 milliseconds between readings. NOTE: must be a power of 2
 #define DC_TIMER_INCREMENT 256/DC_TIMER_OVERFLOWS
-uint16 dc_sum;
-volatile uint16 dc_avg;		// value to be displayed, stored as 12bit number, convert to volts before display
+uint16 dc_sum=0;
+volatile uint16 dc_avg =0;		// value to be displayed, stored as 12bit number, convert to volts before display
 
 
 // rms measurement variables
@@ -47,13 +47,13 @@ volatile uint16 p2p_value;
 //freq measurement variables
 extern volatile uint32 avg_freq;
 extern volatile uint8 nb_overflow;
-
-
+uint16 pulses_in_interval=0;
+extern uint8 freq_method;
 
 
 void setup_timers_dc_averaging(){
 		
-		T2CON = 7;  // all zero except run control
+		T2CON = 4;  // all zero except run control
     ET2   = 1;     // enable timer 2 interrupt
 		EA = 1;
 	
@@ -115,9 +115,9 @@ void dc_voltage_measurment(){ // functions to store measurements as required
 			dc_sum = dc_sum - circular_buffer[buff_index_counter];				//subtract the old value from the running sum
 			circular_buffer[buff_index_counter] = val;
 			dc_sum = dc_sum + circular_buffer[buff_index_counter];				//add new value to sum
-			dc_avg = dc_sum/BUFSIZE;
+			dc_avg = dc_sum>>4;
 			
-			
+			dc_sum = dc_sum;
 			
 		#else													// update avg every after DC_AVG_NUM_SAMPLES readings
 			
@@ -178,7 +178,6 @@ void frequency_measurement() {
 	static uint16 pulses_in_interval=0;
 	
 	if (freq_method){	//time interval elapsed, read value in 16 bit timer 1 register
-	
 		
 		new_sample = ((uint16) TH1<<8)| ((uint16) TL1);
 		if (new_sample<=old_sample){ //overflow occured, account for this
@@ -188,6 +187,7 @@ void frequency_measurement() {
 			pulses_in_interval = new_sample-old_sample;
 		}
 		old sample = new_sample;// log value fro next interrupt
+
 		
 	}
 		
@@ -223,7 +223,7 @@ uint16 read_analog_input_pin(){
 //CS3 = 0;
 uint8 val_LSB = ADCDATAL;
 uint8 val_MSB = ADCDATAH;
-uint16 val = (val_MSB>>8)+val_LSB;
+uint16 val = (val_MSB<<8)+val_LSB;
 	return val;
 }	
 

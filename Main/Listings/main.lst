@@ -1,4 +1,4 @@
-C51 COMPILER V9.54   MAIN                                                                  02/27/2018 17:49:52 PAGE 1   
+C51 COMPILER V9.54   MAIN                                                                  03/06/2018 11:35:21 PAGE 1   
 
 
 C51 COMPILER V9.54, COMPILATION OF MODULE MAIN
@@ -18,85 +18,95 @@ line level    source
    8          uint8 mode = 3;                 // mode of operation as read from pins
    9          uint32 avg_freq = 0;
   10          uint16 nb_overflow =0;          //to make a 32bits counter of clock cycles in the freq calculation
-  11          
+  11          uint8 freq_method = 0; // 1 = high frequency method,  0 = low frequency method
   12          
   13          
-  14          // function prototypes
-  15          void init_pins();
-  16          void get_mode_from_pins();    //read mode from port
-  17          void delay(uint16 period);    
-  18          
+  14          
+  15          // function prototypes
+  16          void init_pins();
+  17          void get_mode_from_pins();    //read mode from port
+  18          void delay(uint16 period);    
   19          
-  20          void main (void) {
-  21   1        // setup
-  22   1        init_pins();    //set switches and analog pins as input, leds as output and enable screen pins
-  23   1        init_screen();
-  24   1        
-  25   1        //loop
-  26   1        while(1){
-  27   2          update_display();
-  28   2          get_mode_from_pins();
-  29   2          delay(SCREEN_UPDATE_DELAY_TIME);
-  30   2        }
-  31   1      }
-  32          
-  33          void init_pins(){
-  34   1        //switch_pins
-  35   1      
-  36   1        SWITCH_PORT = SWITCH_PORT_MASK; //explicitely set these pins leaving rest of port alone
-  37   1        
-  38   1        ADCCON1 = 0x8c;   //init adc
-  39   1        ADCCON2 = 0x22;
-  40   1        ADCCON3 = 0x00;
-  41   1        
-  42   1        T2EX =0;
-  43   1        
-  44   1        //init output pins for screen
-  45   1        switch(mode){   //setup hardware based on new mode
-  46   2            case 0:   setup_timers_dc_averaging();      break;
-  47   2            case 1:   setup_timers_rms_measurment();    break;
-  48   2            case 2:         break;
-  49   2            case 3:   setup_timers_freq_period_counting();      break;    
-  50   2          }
-  51   1      }
-  52          
-  53          
-  54          void get_mode_from_pins(){    //read mode from port
-C51 COMPILER V9.54   MAIN                                                                  02/27/2018 17:49:52 PAGE 2   
+  20          
+  21          void main (void) {
+  22   1        // setup
+  23   1        init_pins();    //set switches and analog pins as input, leds as output and enable screen pins
+  24   1        init_screen();
+  25   1        
+  26   1        //loop
+  27   1        while(1){
+  28   2          update_display();
+  29   2          get_mode_from_pins();
+  30   2          delay(SCREEN_UPDATE_DELAY_TIME);
+  31   2        }
+  32   1      }
+  33          
+  34          void init_pins(){
+  35   1        //switch_pins
+  36   1      
+  37   1        SWITCH_PORT = SWITCH_PORT_MASK; //explicitely set these pins leaving rest of port alone
+  38   1        
+  39   1        ADCCON1 = 0x8c; //1000 1100 : bit7=ADC on, bit6 no external reference,bit5-6 LOW biggest divider=lowest f
+             -requency to sample, bit3-2 means 4 clocks cycle to get the conversion done, bit0-1 LOW to disable external trigerring of
+             - the ADC 
+  40   1        ADCCON2 = 0x22; //0010 0010 : bit7 LOW not us = interupt from hardware, bit 6 LOW not using DMA mode,bit5
+             - :continuous conversion = always working, bit4 LOW not Single Conversion Bit , nit 3-2-1-0 channel 2 selected
+  41   1        ADCCON3 = 0x00;
+  42   1        
+  43   1        T2EX =0;
+  44   1        
+  45   1        //init output pins for screen
+  46   1        switch(mode){   //setup hardware based on new mode
+  47   2            case 0:   setup_timers_dc_averaging();      break;
+  48   2            case 1:   setup_timers_rms_measurment();    break;
+  49   2            case 2:         break;
+  50   2            case 3:   setup_timers_freq_period_counting();      break;    
+  51   2          }
+C51 COMPILER V9.54   MAIN                                                                  03/06/2018 11:35:21 PAGE 2   
 
-  55   1      // we don't care about the time effiency of that function since we delay it later
-  56   1        // so it iplies switch case is fine and not comparison to previous state of mode variable
-  57   1      
-  58   1        mode = SWITCH_PORT & SWITCH_PORT_MASK;
-  59   1        
-  60   1      //    uint8 pin_state;
-  61   1      //  pin_state = SWITCH_PORT & SWITCH_PORT_MASK;
-  62   1      //  if (pin_state != mode){ 
-  63   1      //    mode = pin_state;
-  64   1          
-  65   1          
-  66   1        //}
-  67   1      }   
-  68          
-  69          void delay(uint32 period){
-  70   1        
-  71   1      unsigned int i;   // counting variable
-  72   1        period = period*CLOCK_CYCLES_IN_ONE_MS/CLOCK_CYCLES_IN_FOR_LOOP;
-  73   1         
-  74   1        for (i = 0; i < period; i++)    // count clock cycles
-  75   1        // Nb: the for loop above takes 22 clock cycles to execute as assembly
-  76   1          {}
-  77   1      
-  78   1      }   
-  79          
+  52   1      }
+  53          
+  54          
+  55          void get_mode_from_pins(){    //read mode from port
+  56   1      // we don't care about the time effiency of that function since we delay it later
+  57   1        // so it iplies switch case is fine and not comparison to previous state of mode variable
+  58   1      
+  59   1        mode = SWITCH_PORT & SWITCH_PORT_MASK;
+  60   1        
+  61   1      //    uint8 pin_state;
+  62   1      //  pin_state = SWITCH_PORT & SWITCH_PORT_MASK;
+  63   1      //  if (pin_state != mode){ 
+  64   1      //    mode = pin_state;
+  65   1          //init output pins for screen
+  66   1        switch(mode){   //setup hardware based on new mode
+  67   2            case 0:   setup_timers_dc_averaging();      break;
+  68   2            case 1:   setup_timers_rms_measurment();    break;
+  69   2            case 2:         break;
+  70   2            case 3:   setup_timers_freq_period_counting();      break;    
+  71   2          }
+  72   1          
+  73   1        //}
+  74   1      }   
+  75          
+  76          void delay(uint32 period){
+  77   1        
+  78   1      unsigned int i;   // counting variable
+  79   1        period = period*CLOCK_CYCLES_IN_ONE_MS/CLOCK_CYCLES_IN_FOR_LOOP;
+  80   1         
+  81   1        for (i = 0; i < period; i++)    // count clock cycles
+  82   1        // Nb: the for loop above takes 22 clock cycles to execute as assembly
+  83   1          {}
+  84   1      
+  85   1      }   
+  86          
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =     90    ----
+   CODE SIZE        =    110    ----
    CONSTANT SIZE    =   ----    ----
    XDATA SIZE       =   ----    ----
    PDATA SIZE       =   ----    ----
-   DATA SIZE        =      5    ----
+   DATA SIZE        =      6    ----
    IDATA SIZE       =   ----    ----
    BIT SIZE         =   ----    ----
 END OF MODULE INFORMATION.

@@ -6,7 +6,7 @@
 #endif
 
 #include "config.h"
-
+#include "measurement.h"
 //#include <math.h>
 
 extern uint8 mode;
@@ -16,6 +16,9 @@ extern volatile uint16 dc_avg;		// <<<  use these value when displaying
 extern volatile uint16 rms_avg;
 extern volatile uint16 p2p_value;
 extern volatile uint32 avg_freq;
+extern uint8 freq_method;
+extern uint16 pulses_in_interval;
+
 
 
 const uint8 displaytable[]={	// 0     1     2     3     4     5     6     7     8     9
@@ -45,6 +48,10 @@ void update_display(){
 	
 	switch(mode){		//setup hardware based on new mode
 		case 0:
+			displayVariable = analog_reading_to_voltage(dc_avg);
+			
+		
+		break;
 		case 1:			break;
 		case 2:			break;
 		case 3:  // frequency
@@ -69,12 +76,12 @@ void update_display(){
 				freq_method = 0; 
 				TR0 = 0; // stop 	Timer 0
 			}
-		
-		break;
-	}	
 		if (displayVariable>9999)
 			displayVariable/=1000; //so freq is in kHz
 
+		break;
+	}	
+		
 		sendByteToSPI(1);
 		for(index=0;index<4;index++) //startint with the least significant number
 		{	
